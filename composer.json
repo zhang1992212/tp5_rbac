@@ -1,0 +1,19 @@
+{
+    "name": "geek/tp5_rbac",
+    "description": "tp5_rbac",
+    "authors": [
+        {
+            "name": "geek",
+            "email": "zhangjinlei01@bilibili.com"
+        }
+    ],
+
+    "require": {
+        "php" : ">= 7.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "geek\\tp5_rbac\\": "geek\\tp5_rbac\\"
+        }
+    }
+}
