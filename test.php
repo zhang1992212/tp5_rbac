@@ -3,4 +3,4 @@
 require  './vendor/autoload.php';
 
 
-\geek\tp5_rbac\Test::index();
+\geek1992\tp5_rbac\Test::index();
