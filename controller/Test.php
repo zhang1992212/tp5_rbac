@@ -1,7 +1,7 @@
 <?php
 
 
-namespace geek1992\tp5_rbac;
+namespace geek1992\tp5_rbac\controller;
 
 
 /**
