@@ -1,0 +1,19 @@
+<aside class="Hui-aside">
+	<div class="menu_dropdown bk_2">
+		{volist name="menu_list" id="menu_list_item"}
+		<dl id="menu-article">
+			<dt {if condition="$menu_list_item['selected'] eq 1"} class="selected" {/if}>
+                <i class="Hui-iconfont">{$menu_list_item.menu_icon}</i> {$menu_list_item.menu_name}<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+			<dd {if condition="$menu_list_item['selected'] eq 1"} style="display:block" {/if}>
+				<ul>
+                    {volist name="$menu_list_item['children']" id="children_item"}
+					<li {if condition="$children_item['selected'] eq 1"} class="current" {/if}><a href="{:url($children_item['menu_url'])}" title="{$children_item.menu_name}">{$children_item.menu_name}</a></li>
+                    {/volist}
+				</ul>
+			</dd>
+		</dl>
+        {/volist}
+
+	</div>
+</aside>
+<div class="dislpayArrow hidden-xs"><a class="pngfix" href="javascript:void(0);" onClick="displaynavbar(this)"></a></div>
