@@ -21,7 +21,7 @@ function getskincookie(){
 		v="default";
 	}
 	if(hrefStr!=undefined){
-		var hrefRes=hrefStr.substring(0,hrefStr.lastIndexOf('skin/'))+'skin/'+v+'/skin.css';
+		var hrefRes=hrefStr.substring(0,hrefStr.lastIndexOf('skin/'))+'skin/'+v+'/skin.css.html';
 		$("#skin").attr("href",hrefRes);
 	}
 }
@@ -126,7 +126,7 @@ $(function(){
 		var v = $(this).attr("data-val");
 		$.cookie("Huiskin", v);
 		var hrefStr=$("#skin").attr("href");
-		var hrefRes=hrefStr.substring(0,hrefStr.lastIndexOf('skin/'))+'skin/'+v+'/skin.css';
+		var hrefRes=hrefStr.substring(0,hrefStr.lastIndexOf('skin/'))+'skin/'+v+'/skin.css.html';
 		$(window.frames.document).contents().find("#skin").attr("href",hrefRes);
 	});
 }); 

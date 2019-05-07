@@ -18,6 +18,6 @@ a{color:#333}a:hover,a:focus,.maincolor,.maincolor a{color:#06c}
 	.Hui-aside .menu_dropdown li.current a,.menu_dropdown li.current a:hover{color:#148cf1}
 	.Hui-aside .menu_dropdown dt .Hui-iconfont{ color:#a0a7b1}
 	.Hui-aside .menu_dropdown dt .menu_dropdown-arrow{ color:#b6b7b8}	
-	.dislpayArrow a{background:url(icon_arrow.png) no-repeat 0 0}
+	.dislpayArrow a{background:url(icon_arrow.png.html) no-repeat 0 0}
 .tabBar {border-bottom: 2px solid #19a97b}
 .tabBar span.current{background-color:#19a97b}
