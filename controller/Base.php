@@ -1,54 +1,82 @@
 <?php
 
-
 namespace geek1992\tp5_rbac\controller;
 
 use think\Config;
 use think\Controller;
 use think\Request;
 
-defined('DS') or define('DS', DIRECTORY_SEPARATOR);
-defined('VIEW_PATH') or define('VIEW_PATH', __DIR__ . DS .'..'.DS .'view'. DS);
-defined('STATIC_PATH') or define('STATIC_PATH', DS.'public'.DS.'..'.DS .'vendor'.DS.'geek1992'.DS.'tp5_rbac'.DS.'view'. DS);
+\defined('DS') or \define('DS', \DIRECTORY_SEPARATOR);
+\defined('VIEW_PATH') or \define('VIEW_PATH', __DIR__.DS.'..'.DS.'view'.DS);
+\defined('STATIC_PATH') or \define('STATIC_PATH', DS.'public'.DS.'..'.DS.'vendor'.DS.'geek1992'.DS.'tp5_rbac'.DS.'view'.DS);
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
  */
 class Base extends Controller
 {
+    protected const NO_AUTH_LOGIN_ACTION = [
+        'login',
+        'openfile',
+    ];
+
     public function __construct()
     {
         parent::__construct();
-//        halt(STATIC_PATH);
-        $this->assign('layout',VIEW_PATH);
-        $this->view->engine->layout(VIEW_PATH  . 'layout.html');
-
+        $this->view->engine->layout(VIEW_PATH.'layout.html');
     }
 
     public function _initialize()
     {
-        $this->assign('admin_info', $admin_info = ['role_name'=>'a','name'=>'a']);
-        $this->assign('menu_list', $menu_new_list= []);
+        if (null === session('userInfo') && !\in_array(Request::instance()->action(), static::NO_AUTH_LOGIN_ACTION, true)) {
+            return $this->redirect(url('login', ['method' => 'login']));
+        }
+//        $this->assign('layout',VIEW_PATH);
+
+//        // 获取访问url地址
+//        $url_arr1 = explode('.', trim($_SERVER['REQUEST_URI'], '/'))[0];
+//        if (!empty($url_arr1)) {
+//            $url_arr = explode('/', $url_arr1);
+//            $url = $url_arr[0] . '/' . $url_arr[1] . '/' . $url_arr[2];
+//        } else {
+//            $url = '/';
+//        }
+//        // 获取所有菜单信息
+//        $menu_list = $this->permission->getAllList();
+//        // 获取用户权限
+//        $user_permission_info = self::_getUserPermission();
+//        if ($user_permission_info['check'] == -1 || $user_permission_info['check'] == -2) {
+//            //未配置 -1 角色信息 -2 权限菜单
+//            $menu_new_list = [];
+//        } elseif ($user_permission_info['check'] == 1) {
+//            //超级管理员
+//            $menu_new_list = self::_dealWithMenu($menu_list, 0, $url);
+//        } else {
+//            //其他用户
+//            $menu_new_list = self::_dealWithMenu($menu_list, 0, $url, $user_permission_info['check']);
+//        }
+        $admin_info = session('userInfo');
+//        halt($admin_info);
+//        $admin_info['role_name'] = isset($user_permission_info['data']['name']) ? $user_permission_info['data']['name'] : '';
+        $this->assign('admin_info', $admin_info);
+//        $this->assign('menu_list', $menu_new_list);
+        $this->assign('menu_list', $menu_new_list = []);
     }
-    
+
     public function myFetch($name = '', $vars = [], $replace = [], $config = [])
     {
-        return parent::fetch(VIEW_PATH . $name . '.' . Config::get('url_html_suffix'), $vars = [], $replace = ['__ADMIN_STATIC__' => STATIC_PATH], $config = []);
+        return parent::fetch(VIEW_PATH.$name.'.'.Config::get('url_html_suffix'), $vars = [], $replace = ['__ADMIN_STATIC__' => STATIC_PATH], $config = []);
     }
 
-
-
-
     /**
-     * 注册样式文件
+     * 注册样式文件.
      */
-    public function openFile(Request $request){
-        $text       = '';
-        $file       = explode('geek', $request->path());
-        $extension  = substr(strrchr($file[1], '.'), 1);
-        
-        switch ($extension)
-        {
+    public function openFile(Request $request)
+    {
+        $text = '';
+        $file = explode('geek', $request->path());
+        $extension = substr(strrchr($file[1], '.'), 1);
+        switch ($extension) {
             case 'css':
                 $text = 'text/css';
                 break;
@@ -61,12 +89,16 @@ class Base extends Controller
             case  'png':
                 $text = 'png';
                 break;
+            case  'jpg':
+                $text = 'jpg';
+                break;
             default:
                 return false;
         }
 
         $pach = VIEW_PATH.'static/'.substr($file[1], 1);
         $file = file_get_contents($pach);
-        return response($file, 200, ['Content-Length' => strlen($file)])->contentType($text);
+
+        return response($file, 200, ['Content-Length' => \strlen($file)])->contentType($text);
     }
 }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML>
+<!DOCTYPE HTML>
 <html>
 <head>
 <meta charset="utf-8">
@@ -9,15 +9,15 @@
 <link rel="Bookmark" href="/favicon.ico" >
 <link rel="Shortcut Icon" href="/favicon.ico" />
     <?php
-    function get_file($file){
-        $directory =  \think\Config::get('tp5_rbac.style_directory');
-        if(empty($directory)){
-
-            return url('index/openFile',explode('/', $file));
-        }else{
-            $file       = strtr($file, '_', DS);
-            return $directory.$file;
+    function get_file($file)
+    {
+        $directory = \think\Config::get('tp5_rbac.style_directory');
+        if (empty($directory)) {
+            return url('index/openFile', explode('/', $file));
         }
+        $file = strtr($file, '_', DS);
+
+        return $directory.$file;
     }
     ?>
 <!--[if lt IE 9]>

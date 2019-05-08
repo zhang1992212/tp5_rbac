@@ -1,8 +1,7 @@
 <?php
 /**
- * 此页面用来协助 IE6/7 预览图片，因为 IE 6/7 不支持 base64
+ * 此页面用来协助 IE6/7 预览图片，因为 IE 6/7 不支持 base64.
  */
-
 $DIR = 'preview';
 // Create target dir
 if (!file_exists($DIR)) {
@@ -17,8 +16,8 @@ if ($cleanupTargetDir) {
         die('{"jsonrpc" : "2.0", "error" : {"code": 100, "message": "Failed to open temp directory."}, "id" : "id"}');
     }
 
-    while (($file = readdir($dir)) !== false) {
-        $tmpfilePath = $DIR . DIRECTORY_SEPARATOR . $file;
+    while (false !== ($file = readdir($dir))) {
+        $tmpfilePath = $DIR.DIRECTORY_SEPARATOR.$file;
 
         // Remove temp file if it is older than the max age and is not the current file
         if (@filemtime($tmpfilePath) < time() - $maxFileAge) {
@@ -31,19 +30,17 @@ if ($cleanupTargetDir) {
 $src = file_get_contents('php://input');
 
 if (preg_match("#^data:image/(\w+);base64,(.*)$#", $src, $matches)) {
-
     $previewUrl = sprintf(
-        "%s://%s%s",
-        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+        '%s://%s%s',
+        isset($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS'] ? 'https' : 'http',
         $_SERVER['HTTP_HOST'],
         $_SERVER['REQUEST_URI']
     );
-    $previewUrl = str_replace("preview.php", "", $previewUrl);
-
+    $previewUrl = str_replace('preview.php', '', $previewUrl);
 
     $base64 = $matches[2];
     $type = $matches[1];
-    if ($type === 'jpeg') {
+    if ('jpeg' === $type) {
         $type = 'jpg';
     }
 
@@ -52,12 +49,9 @@ if (preg_match("#^data:image/(\w+);base64,(.*)$#", $src, $matches)) {
 
     if (file_exists($filePath)) {
         die('{"jsonrpc" : "2.0", "result" : "'.$previewUrl.'preview/'.$filename.'", "id" : "id"}');
-    } else {
-        $data = base64_decode($base64);
-        file_put_contents($filePath, $data);
-        die('{"jsonrpc" : "2.0", "result" : "'.$previewUrl.'preview/'.$filename.'", "id" : "id"}');
     }
-
-} else {
-    die('{"jsonrpc" : "2.0", "error" : {"code": 100, "message": "un recoginized source"}}');
+    $data = base64_decode($base64, true);
+    file_put_contents($filePath, $data);
+    die('{"jsonrpc" : "2.0", "result" : "'.$previewUrl.'preview/'.$filename.'", "id" : "id"}');
 }
+    die('{"jsonrpc" : "2.0", "error" : {"code": 100, "message": "un recoginized source"}}');

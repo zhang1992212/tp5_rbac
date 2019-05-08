@@ -27,14 +27,15 @@
 </head>
 <body>
 <?php
-function get_file($file){
-    $directory =  \think\Config::get('tp5_rbac.style_directory');
-    if(empty($directory)){
+function get_file($file)
+{
+    $directory = \think\Config::get('tp5_rbac.style_directory');
+    if (empty($directory)) {
         return urldecode(url('index/openFile', ['geek' => $file]));
 //        return url('index/openFile', '', '') . '/geek/' . $file;
-    }else{
-        $file       = strtr($file, '_', DS);
-        return $directory.$file;
     }
+    $file = strtr($file, '_', DS);
+
+    return $directory.$file;
 }
 ?>
