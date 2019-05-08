@@ -1,6 +1,6 @@
 <?php
 /**
- * upload.php
+ * upload.php.
  *
  * Copyright 2013, Moxiecode Systems AB
  * Released under GPL License.
@@ -9,18 +9,17 @@
  * Contributing: http://www.plupload.com/contributing
  */
 
-#!! IMPORTANT:
-#!! this file is just an example, it doesn't incorporate any security checks and
-#!! is not recommended to be used in production environment as it is. Be sure to
-#!! revise it and customize to your needs.
-
+//!! IMPORTANT:
+//!! this file is just an example, it doesn't incorporate any security checks and
+//!! is not recommended to be used in production environment as it is. Be sure to
+//!! revise it and customize to your needs.
 
 // Make sure file is not cached (as it happens for example on iOS devices)
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header("Cache-Control: no-store, no-cache, must-revalidate");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
 
 // header("HTTP/1.0 500 Internal Server Error");
 
@@ -28,19 +27,17 @@ header("Pragma: no-cache");
 // Support CORS
 // header("Access-Control-Allow-Origin: *");
 // other CORS headers if any...
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+if ('OPTIONS' === $_SERVER['REQUEST_METHOD']) {
     exit; // finish preflight CORS requests here
 }
 
-
-if ( !empty($_REQUEST[ 'debug' ]) ) {
-    $random = rand(0, intval($_REQUEST[ 'debug' ]) );
-    if ( $random === 0 ) {
-        header("HTTP/1.0 500 Internal Server Error");
+if (!empty($_REQUEST['debug'])) {
+    $random = rand(0, (int) ($_REQUEST['debug']));
+    if (0 === $random) {
+        header('HTTP/1.0 500 Internal Server Error');
         exit;
     }
 }
-
 
 // 5 minutes execution time
 @set_time_limit(5 * 60);
@@ -56,7 +53,6 @@ $uploadDir = 'upload';
 $cleanupTargetDir = true; // Remove old files
 $maxFileAge = 5 * 3600; // Temp file age in seconds
 
-
 // Create target dir
 if (!file_exists($targetDir)) {
     @mkdir($targetDir);
@@ -68,28 +64,27 @@ if (!file_exists($uploadDir)) {
 }
 
 // Get a file name
-if (isset($_REQUEST["name"])) {
-    $fileName = $_REQUEST["name"];
+if (isset($_REQUEST['name'])) {
+    $fileName = $_REQUEST['name'];
 } elseif (!empty($_FILES)) {
-    $fileName = $_FILES["file"]["name"];
+    $fileName = $_FILES['file']['name'];
 } else {
-    $fileName = uniqid("file_");
+    $fileName = uniqid('file_');
 }
 
 $md5File = @file('md5list2.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-$md5File = $md5File ? $md5File : array();
+$md5File = $md5File ? $md5File : [];
 
-if (isset($_REQUEST["md5"]) && array_search($_REQUEST["md5"], $md5File ) !== FALSE ) {
+if (isset($_REQUEST['md5']) && false !== array_search($_REQUEST['md5'], $md5File, true)) {
     die('{"jsonrpc" : "2.0", "result" : null, "id" : "id", "exist": 1}');
 }
 
-$filePath = $targetDir . DIRECTORY_SEPARATOR . $fileName;
-$uploadPath = $uploadDir . DIRECTORY_SEPARATOR . $fileName;
+$filePath = $targetDir.DIRECTORY_SEPARATOR.$fileName;
+$uploadPath = $uploadDir.DIRECTORY_SEPARATOR.$fileName;
 
 // Chunking might be enabled
-$chunk = isset($_REQUEST["chunk"]) ? intval($_REQUEST["chunk"]) : 0;
-$chunks = isset($_REQUEST["chunks"]) ? intval($_REQUEST["chunks"]) : 0;
-
+$chunk = isset($_REQUEST['chunk']) ? (int) ($_REQUEST['chunk']) : 0;
+$chunks = isset($_REQUEST['chunks']) ? (int) ($_REQUEST['chunks']) : 0;
 
 // Remove old temp files
 if ($cleanupTargetDir) {
@@ -97,11 +92,11 @@ if ($cleanupTargetDir) {
         die('{"jsonrpc" : "2.0", "error" : {"code": 100, "message": "Failed to open temp directory."}, "id" : "id"}');
     }
 
-    while (($file = readdir($dir)) !== false) {
-        $tmpfilePath = $targetDir . DIRECTORY_SEPARATOR . $file;
+    while (false !== ($file = readdir($dir))) {
+        $tmpfilePath = $targetDir.DIRECTORY_SEPARATOR.$file;
 
         // If temp file is current file proceed to the next
-        if ($tmpfilePath == "{$filePath}.part") {
+        if ($tmpfilePath === "{$filePath}.part") {
             continue;
         }
 
@@ -113,23 +108,22 @@ if ($cleanupTargetDir) {
     closedir($dir);
 }
 
-
 // Open temp file
-if (!$out = @fopen("{$filePath}.part", $chunks ? "ab" : "wb")) {
+if (!$out = @fopen("{$filePath}.part", $chunks ? 'ab' : 'wb')) {
     die('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}');
 }
 
 if (!empty($_FILES)) {
-    if ($_FILES["file"]["error"] || !is_uploaded_file($_FILES["file"]["tmp_name"])) {
+    if ($_FILES['file']['error'] || !is_uploaded_file($_FILES['file']['tmp_name'])) {
         die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : "id"}');
     }
 
     // Read binary input stream and append it to temp file
-    if (!$in = @fopen($_FILES["file"]["tmp_name"], "rb")) {
+    if (!$in = @fopen($_FILES['file']['tmp_name'], 'r')) {
         die('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
     }
 } else {
-    if (!$in = @fopen("php://input", "rb")) {
+    if (!$in = @fopen('php://input', 'r')) {
         die('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
     }
 }
@@ -142,31 +136,30 @@ while ($buff = fread($in, 4096)) {
 @fclose($in);
 
 // Check if file has been uploaded
-if (!$chunks || $chunk == $chunks - 1) {
+if (!$chunks || $chunk === $chunks - 1) {
     // Strip the temp .part suffix off
     rename("{$filePath}.part", $filePath);
 
     rename($filePath, $uploadPath);
     array_push($md5File, mymd5($uploadPath));
     $md5File = array_unique($md5File);
-    file_put_contents('md5list2.txt', join($md5File, "\n"));
+    file_put_contents('md5list2.txt', implode("\n", $md5File));
 }
 
-function mymd5( $file ) {
+function mymd5($file)
+{
     $fragment = 65536;
 
-    $rh = fopen($file, 'rb');
+    $rh = fopen($file, 'r');
     $size = filesize($file);
 
-    $part1 = fread( $rh, $fragment );
-    fseek($rh, $size-$fragment);
-    $part2 = fread( $rh, $fragment);
+    $part1 = fread($rh, $fragment);
+    fseek($rh, $size - $fragment);
+    $part2 = fread($rh, $fragment);
     fclose($rh);
 
-    return md5( $part1.$part2 );
+    return md5($part1.$part2);
 }
-
-
 
 // Return Success JSON-RPC response
 die('{"jsonrpc" : "2.0", "result" : null, "id" : "id"}');
