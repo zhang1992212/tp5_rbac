@@ -33,16 +33,7 @@ class Base extends Controller
         if (null === session('userInfo') && !\in_array(Request::instance()->action(), static::NO_AUTH_LOGIN_ACTION, true)) {
             return $this->redirect(url('login', ['method' => 'login']));
         }
-//        $this->assign('layout',VIEW_PATH);
-
-//        // 获取访问url地址
-//        $url_arr1 = explode('.', trim($_SERVER['REQUEST_URI'], '/'))[0];
-//        if (!empty($url_arr1)) {
-//            $url_arr = explode('/', $url_arr1);
-//            $url = $url_arr[0] . '/' . $url_arr[1] . '/' . $url_arr[2];
-//        } else {
-//            $url = '/';
-//        }
+//        halt(Request::instance());
         // 获取所有菜单信息
         $admin_info = session('userInfo');
         $admin_info['is_supper'] = 1;

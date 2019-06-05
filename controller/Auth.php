@@ -13,6 +13,8 @@ abstract class Auth extends Base
       'login' => 'geek1992\tp5_rbac\controller\Login',
       'account' => 'geek1992\tp5_rbac\controller\Account',
       'welcome' => 'geek1992\tp5_rbac\controller\Welcome',
+      'menu' => 'geek1992\tp5_rbac\controller\Menu',
+      'role' => 'geek1992\tp5_rbac\controller\Role',
     ];
 
     public function _empty($name)
