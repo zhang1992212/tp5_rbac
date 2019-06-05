@@ -10,7 +10,7 @@ use think\Model;
 class Account extends Model
 {
     protected $connection = 'database';
-    protected $table = 'account';
+    protected $name = 'admin_account';
 
     public function getList($where, $limit = '')
     {

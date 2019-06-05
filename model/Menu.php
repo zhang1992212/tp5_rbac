@@ -8,7 +8,7 @@ namespace geek1992\tp5_rbac\model;
 class Menu extends BaseModel
 {
     protected $connection = 'database';
-    protected $table = 'menu';
+    protected $name = 'admin_menu';
 
     public function getList($where = [], $limit = '')
     {

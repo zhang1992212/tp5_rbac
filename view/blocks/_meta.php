@@ -10,16 +10,16 @@
 <LINK rel="Shortcut Icon" href="/favicon.ico" />
 
 <!--[if lt IE 9]>
-<script type="text/javascript" src="<?php echo get_file('lib/html5.js'); ?>"></script>
-<script type="text/javascript" src="<?php echo get_file('lib/respond.min.js'); ?>"></script>
+<script type="text/javascript" src="/static/rbac/lib/html5.js"></script>
+<script type="text/javascript" src="/static/rbac/lib/respond.min.js"></script>
 <![endif]-->
-<link rel="stylesheet" type="text/css" href="<?php echo get_file('h-ui/css/H-ui.min.css'); ?>" />
-<link rel="stylesheet" type="text/css" href="<?php echo get_file('h-ui.admin/css/H-ui.admin.css'); ?>" />
-<link rel="stylesheet" type="text/css" href="<?php echo get_file('lib/Hui-iconfont/1.0.8/iconfont.css'); ?>" />
-<link rel="stylesheet" type="text/css" href="<?php echo get_file('h-ui.admin/skin/default/skin.css'); ?>" id="skin" />
-<link rel="stylesheet" type="text/css" href="<?php echo get_file('h-ui.admin/css/style.css'); ?>" />
+<link rel="stylesheet" type="text/css" href="/static/rbac/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="/static/rbac/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="/static/rbac/lib/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="/static/rbac/h-ui.admin/skin/default/skin.css" id="skin" />
+<link rel="stylesheet" type="text/css" href="/static/rbac/h-ui.admin/css/style.css" />
 <!--[if IE 6]>
-<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js'); ?>" ></script>
+<script type="text/javascript" src="http://lib.h-ui.net/DD_belatedPNG_0.0.8a-min.js" ></script>
 <script>DD_belatedPNG.fix('*');</script><![endif]-->
     <title>H-ui.admin v3.0</title>
     <meta name="keywords" content="H-ui.admin v3.0,H-ui网站后台模版,后台模版下载,后台管理系统模版,HTML后台模版下载">
