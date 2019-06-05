@@ -2,9 +2,11 @@
 
 namespace geek1992\tp5_rbac\controller;
 
+use geek1992\tp5_rbac\model\Menu;
 use think\Config;
 use think\Controller;
 use think\Request;
+
 
 \defined('DS') or \define('DS', \DIRECTORY_SEPARATOR);
 \defined('VIEW_PATH') or \define('VIEW_PATH', __DIR__.DS.'..'.DS.'view'.DS);
@@ -41,8 +43,10 @@ class Base extends Controller
 //        } else {
 //            $url = '/';
 //        }
-//        // 获取所有菜单信息
-//        $menu_list = $this->permission->getAllList();
+        // 获取所有菜单信息
+//        $menuModel = new Menu();
+//        $menu_list = $menuModel->getList();
+//        dump($menu_list);exit;
 //        // 获取用户权限
 //        $user_permission_info = self::_getUserPermission();
 //        if ($user_permission_info['check'] == -1 || $user_permission_info['check'] == -2) {
@@ -66,39 +70,5 @@ class Base extends Controller
     public function myFetch($name = '', $vars = [], $replace = [], $config = [])
     {
         return parent::fetch(VIEW_PATH.$name.'.'.Config::get('url_html_suffix'), $vars = [], $replace = ['__ADMIN_STATIC__' => STATIC_PATH], $config = []);
-    }
-
-    /**
-     * 注册样式文件.
-     */
-    public function openFile(Request $request)
-    {
-        $text = '';
-        $file = explode('geek', $request->path());
-        $extension = substr(strrchr($file[1], '.'), 1);
-        switch ($extension) {
-            case 'css':
-                $text = 'text/css';
-                break;
-            case 'js':
-                $text = 'text/js';
-                break;
-            case  'woff':
-                $text = 'woff';
-                break;
-            case  'png':
-                $text = 'png';
-                break;
-            case  'jpg':
-                $text = 'jpg';
-                break;
-            default:
-                return false;
-        }
-
-        $pach = VIEW_PATH.'static/'.substr($file[1], 1);
-        $file = file_get_contents($pach);
-
-        return response($file, 200, ['Content-Length' => \strlen($file)])->contentType($text);
     }
 }
