@@ -11,14 +11,20 @@ abstract class BaseModel extends Model
 {
     protected $connection = 'database';
 
-    public function getList($where, $limit = '')
+    public function getList($where = [], $limit = '', $order = '')
     {
         $list = [];
-        if (empty($limit)) {
-            $res = $this->where($where)->select();
-        } else {
-            $res = $this->where($where)->limit($limit)->select();
+        $build = $this;
+        if (!empty($limit)) {
+            $build = $build->limit($limit);
         }
+        if (!empty($where)) {
+            $build = $build->where($where);
+        }
+        if (!empty($order)) {
+            $build = $build->order($order);
+        }
+        $res = $build->select();
         if (!empty($res)) {
             $list = collection($res)->toArray();
         }

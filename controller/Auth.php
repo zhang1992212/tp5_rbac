@@ -7,10 +7,12 @@ use think\Request;
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
  */
-class Auth extends Base
+abstract class Auth extends Base
 {
     private $Router = [
       'login' => 'geek1992\tp5_rbac\controller\Login',
+      'account' => 'geek1992\tp5_rbac\controller\Account',
+      'welcome' => 'geek1992\tp5_rbac\controller\Welcome',
     ];
 
     public function _empty($name)
@@ -24,15 +26,5 @@ class Auth extends Base
         return abort(404, '页面不存在');
     }
 
-    /**
-     * 首页.
-     *
-     * @param Request $request
-     *
-     * @return mixed
-     */
-    public function index(Request $request)
-    {
-        return $this->myFetch('auth/index');
-    }
+
 }

@@ -44,9 +44,13 @@ class Base extends Controller
 //            $url = '/';
 //        }
         // 获取所有菜单信息
-//        $menuModel = new Menu();
-//        $menu_list = $menuModel->getList();
-//        dump($menu_list);exit;
+        $admin_info = session('userInfo');
+        $admin_info['is_supper'] = 1;
+        if ($admin_info['is_supper'] == 1) {
+            $menu_list = $this->getSupperMenu();
+        } else {
+            $menu_list = [];
+        }
 //        // 获取用户权限
 //        $user_permission_info = self::_getUserPermission();
 //        if ($user_permission_info['check'] == -1 || $user_permission_info['check'] == -2) {
@@ -59,12 +63,75 @@ class Base extends Controller
 //            //其他用户
 //            $menu_new_list = self::_dealWithMenu($menu_list, 0, $url, $user_permission_info['check']);
 //        }
-        $admin_info = session('userInfo');
-//        halt($admin_info);
+
 //        $admin_info['role_name'] = isset($user_permission_info['data']['name']) ? $user_permission_info['data']['name'] : '';
         $this->assign('admin_info', $admin_info);
-//        $this->assign('menu_list', $menu_new_list);
-        $this->assign('menu_list', $menu_new_list = []);
+        $this->assign('menu_list', $menu_list);
+    }
+
+    protected function getSupperMenu() {
+        $menuModel = new Menu();
+        $menu_list = $menuModel->getList([], '', 'order desc');
+        $menu_tree = $this->menuTreeList($menu_list);
+        $menu_tree_html = $this->buildMenuTree($menu_tree);
+        return $menu_tree_html;
+    }
+
+    private function menuTreeList($list, $pid = 0) {
+        if (count($list) == 1) {
+            return $list;
+        }
+        $tree = [];
+        foreach ($list as $item) {
+            if ($item['parent_id'] == $pid) {
+                $tmp = [];
+                $tmp['id'] = $item['id'];
+                $tmp['name'] = $item['name'];
+                $tmp['icon'] = $item['icon'];
+                if ($item['type'] == 0) { //系统菜单
+                    $tmp['url'] = url('index/index/'.$item['controller'],['method'=>$item['action']]);
+                } else {
+                    $tmp['url'] = url($item['module'].'/' .$item['controller'].'/'.$item['action']);
+                }
+                $tmp['type'] = $item['type'];
+                $tmp['order'] = $item['order'];
+                $tmp['parent_id'] = $item['parent_id'];
+                $tmp['children'] = $this->menuTreeList($list, $item['id']);
+                array_push($tree, $tmp);
+            }
+        }
+        return $tree;
+    }
+
+
+    private function buildMenuTree($list) {
+        $html = '';
+        if (empty($list)) {
+            return $html;
+        }
+        foreach ($list as $item) {
+            $html .= '<dl id="menu-article">'; 
+            $html .= '<dt>';
+            $html .= '<i class="Hui-iconfont">';
+            $html .= $item['icon'];
+            $html .= '</i>';
+            $html .= $item['name'];
+            $html .= '<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>';
+            $html .= '</dt>';
+            $html .= '<dd>';
+            $html .= '<ul>';
+            if (!empty($item['children'])) {
+                foreach ($item['children'] as $i) {
+                    $html .= '<li>';
+                    $html .= '<a href="'.$i['url'].'" title="'. $i['name'] .'">' . $i['name'] .'</a>';
+                    $html .= '</li>';
+                }
+            }
+            $html .= '</ul>';
+            $html .= '</dd>';
+            $html .= '</dl>';
+        }
+        return $html;
     }
 
     public function myFetch($name = '', $vars = [], $replace = [], $config = [])
