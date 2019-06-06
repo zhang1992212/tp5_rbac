@@ -101,13 +101,23 @@ class Base extends Controller
             return $html;
         }
         foreach ($list as $item) {
-            $html .= '<dl id="menu-article">'; 
+            if(empty($item['children'])) {
+                $html .= '<dl><dt>';
+                $html .= '<i class="Hui-iconfont">';
+                $html .= $item['icon'];
+                $html .= '</i>';
+                $html .= '<a href="'.$item['url'].'" title="'. $item['name'] .'">' . $item['name'] .'</a>';
+                $html .= '</dt></dl>';
+                continue;
+            }
+            $html .= '<dl id="menu-article">';
             $html .= '<dt>';
             $html .= '<i class="Hui-iconfont">';
             $html .= $item['icon'];
             $html .= '</i>';
             $html .= $item['name'];
             $html .= '<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>';
+
             $html .= '</dt>';
             $html .= '<dd>';
             $html .= '<ul>';
@@ -121,6 +131,7 @@ class Base extends Controller
             $html .= '</ul>';
             $html .= '</dd>';
             $html .= '</dl>';
+
         }
         return $html;
     }
@@ -128,5 +139,21 @@ class Base extends Controller
     public function myFetch($name = '', $vars = [], $replace = [], $config = [])
     {
         return parent::fetch(VIEW_PATH.$name.'.'.Config::get('url_html_suffix'), $vars = [], $replace = ['__ADMIN_STATIC__' => STATIC_PATH], $config = []);
+    }
+
+    /**
+     * 没有导航的布局文件
+     */
+    public function noNavLayout()
+    {
+        $this->view->engine->layout(VIEW_PATH.'no_nav_layout.html');
+    }
+
+    /**
+     * 关闭布局
+     */
+    public function noLayOut()
+    {
+        $this->view->engine->layout(false);
     }
 }

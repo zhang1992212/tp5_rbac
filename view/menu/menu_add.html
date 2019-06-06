@@ -1,0 +1,103 @@
+<form action="" method="post" class="form form-horizontal" id="form-add">
+    <div class="row cl">
+        <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>选择父级菜单：</label>
+        <div class="formControls col-xs-8 col-sm-9">
+             <span class="select-box">
+            <select name="parent_id" id=""  class="select" size="1">
+                {volist name="menu_list" id="vo"}
+                <option value="{$vo.id}">{$vo.name}</option>
+                {/volist}
+            </select>
+             </span>
+        </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>菜单名称：</label>
+        <div class="formControls col-xs-8 col-sm-9">
+            <input type="text" class="input-text" value="" placeholder="" id="name" name="name">
+        </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>模块：</label>
+        <div class="formControls col-xs-8 col-sm-9">
+            <input type="text" class="input-text" value="" placeholder="" id="module" name="module">
+        </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>控制器：</label>
+        <div class="formControls col-xs-8 col-sm-9">
+            <input type="text" class="input-text" placeholder="" name="controller" id="controller">
+        </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>方法：</label>
+        <div class="formControls col-xs-8 col-sm-9">
+            <input type="text" class="input-text" placeholder="" name="action" id="action">
+        </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>排序：</label>
+        <div class="formControls col-xs-8 col-sm-9">
+            <input type="text" class="input-text" placeholder="" name="order" id="order">
+        </div>
+    </div>
+    <!--<div class="row cl">-->
+        <!--<label class="form-label col-xs-4 col-sm-3">图标：</label>-->
+        <!--<a href="http://www.geezn.com/webDemoCenter/style/iconfont/demo.html" target="_blank">选择图标1</a>-->
+        <!--<a href="http://www.keyin.cn/font/"  target="_blank">选择图标2</a>-->
+        <!--<div class="formControls col-xs-8 col-sm-9"> <span class="select-box">-->
+            <!--<select class="select" size="1" name="city">-->
+                <!--<option value="" selected>请选择城市</option>-->
+                <!--<option value="1">北京</option>-->
+                <!--<option value="2">上海</option>-->
+                <!--<option value="3">广州</option>-->
+            <!--</select>-->
+            <!--</span> </div>-->
+    <!--</div>-->
+    <div class="row cl">
+        <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+            <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(function(){
+        $("#form-add").validate({
+            rules:{
+                name:{
+                    required:true,
+                    minlength:1,
+                    maxlength:16
+                },
+                module:{
+                    required:true
+                },
+                controller:{
+                    required:true
+                },
+                action:{
+                    required:true,
+                },
+
+            },
+            onkeyup:false,
+            focusCleanup:true,
+            success:"valid",
+            submitHandler:function(form){
+                $(form).ajaxSubmit({
+                    success:function (e) {
+                        console.log(e)
+                        if (e.code == 0) {
+                            layer.msg(e.msg)
+                        } else {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.$('.btn-refresh').click();
+                            parent.layer.close(index);
+                        }
+                    }
+                });
+
+            }
+        });
+    });
+</script>

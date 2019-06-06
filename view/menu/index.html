@@ -1,1 +1,66 @@
-account
+<div class="cl pd-5 bg-1 bk-gray mt-20">
+    <span class="l">
+        <a href="javascript:;" onclick="common_add('添加菜单','menu_add','800','500')" class="btn btn-primary radius">
+            <i class="Hui-iconfont">&#xe600;</i> 添加菜单</a>
+    </span>
+    <span class="r">共有数据：<strong>54</strong> 条</span>
+</div>
+<table class="table table-border table-bordered table-bg">
+    <thead>
+    <tr>
+        <th scope="col" colspan="200">菜单管理</th>
+    </tr>
+    <tr class="text-c">
+        <th width="25"><input type="checkbox" name="" value=""></th>
+        <th width="40">ID</th>
+        <th width="150">菜单名</th>
+        <th width="50">图标</th>
+        <th width="90">模块</th>
+        <th width="150">控制器</th>
+        <th>方法</th>
+        <th width="130">排序</th>
+        <th width="100">菜单类型</th>
+        <th width="100">创建时间</th>
+        <th width="100">更新时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {empty name='list'}
+    <td colspan="200" style="text-align: center">暂无数据</td>
+    {else/}
+    {volist name='list' id='item'}
+    <tr class="text-c">
+        <td><input type="checkbox" value="1" name=""></td>
+        <td>{$item.id}</td>
+        <td style="text-align: left">{$item.name}</td>
+        <td><i class="Hui-iconfont">{$item.icon}</i></td>
+        <td>{$item.module}</td>
+        <td>{$item.controller}</td>
+        <td>{$item.action}</td>
+        <td>{$item.order}</td>
+        <td>
+            {if condition="$item['type'] eq 0"}
+            系统菜单
+            {else/}
+            普通菜单
+            {/if}
+        </td>
+        <td>{$item.create_time}</td>
+        <td>{$item.update_time}</td>
+        <td>
+            {if condition="$item['type'] neq 0"}
+            <a class="btn btn-default" href="">aaaa</a>
+            {/if}
+        </td>
+    </tr>
+    {/volist}
+    {/empty}
+    </tbody>
+</table>
+<script>
+    /*管理员-增加*/
+    function common_add(title,url,w,h){
+        layer_show(title,url,w,h);
+    }
+</script>

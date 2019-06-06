@@ -11,7 +11,7 @@ abstract class BaseModel extends Model
 {
     protected $connection = 'database';
 
-    public function getList($where = [], $limit = '', $order = '')
+    public function getList($where = [], $limit = '', $order = '', $field = '*')
     {
         $list = [];
         $build = $this;
@@ -20,6 +20,9 @@ abstract class BaseModel extends Model
         }
         if (!empty($where)) {
             $build = $build->where($where);
+        }
+        if (!empty($field)) {
+            $build = $build->field($field);
         }
         if (!empty($order)) {
             $build = $build->order($order);
