@@ -22,6 +22,7 @@ class Menu extends Base
     public function index()
     {
         $list = $this->menuApi->getTreeList();
+   
         $this->assign('list', $list);
         return $this->myFetch('menu/index');
     }
@@ -44,9 +45,15 @@ class Menu extends Base
                 return $this->error('添加失败');
             }
         }
-        $pList = $this->menuApi->getParentList();
+        $id = $request->get('id', -1, 'int');
+        if ($id == -1) {
+            $pList = $this->menuApi->getParentList();
+        } else {
+            $pList = $this->menuApi->getParentInfo($id);
+        }
         $this->noNavLayout();
         $this->assign('menu_list', $pList);
+        $this->assign('id', $id);
         return $this->myFetch('menu/menu_add');
     }
     

@@ -50,7 +50,7 @@
         <td>{$item.update_time}</td>
         <td>
             {if condition="$item['type'] neq 0"}
-            <a class="btn btn-default" href="">aaaa</a>
+            <a href="javascript:;" onclick="common_add('添加子菜单','menu_add?id={$item.id}','800','500')" class="btn btn-primary radius">添加子菜单</a>
             {/if}
         </td>
     </tr>
@@ -63,4 +63,6 @@
     function common_add(title,url,w,h){
         layer_show(title,url,w,h);
     }
+
+
 </script>

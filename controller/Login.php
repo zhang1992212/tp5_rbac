@@ -27,6 +27,9 @@ class Login extends Base
      */
     public function login(Request $request)
     {
+        if (session('userInfo')) {
+            return $this->redirect(url('welcome', ['method' => 'index']));
+        }
         if ($request->isPost()) {
             //登录
             $info = $this->LoginApiService->checkLogin($request->param('account'), $request->param('password'));

@@ -14,7 +14,7 @@ abstract class BaseModel extends Model
     public function getList($where = [], $limit = '', $order = '', $field = '*')
     {
         $list = [];
-        $build = $this;
+        $build = $this->deleted();
         if (!empty($limit)) {
             $build = $build->limit($limit);
         }
@@ -28,6 +28,7 @@ abstract class BaseModel extends Model
             $build = $build->order($order);
         }
         $res = $build->select();
+//        echo $build->getLastSql();exit();
         if (!empty($res)) {
             $list = collection($res)->toArray();
         }
@@ -45,7 +46,7 @@ abstract class BaseModel extends Model
     public function getOneInfo($where, $field = '*')
     {
         $list = [];
-        $res = $this->field($field)->where($where)->find();
+        $res = $this->deleted()->field($field)->where($where)->find();
         if (!empty($res)) {
             $list = $res->toArray();
         }
@@ -67,8 +68,10 @@ abstract class BaseModel extends Model
         return $res;
     }
 
-    protected function deleted($where) {
-        $where['deleted'] = 0;
-        return $where;
+    protected function deleted()
+    {
+        $this->where(['deleted' => 0]);
+
+        return $this;
     }
 }
