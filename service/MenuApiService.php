@@ -38,7 +38,15 @@ class MenuApiService
 
     public function getParentInfo($id)
     {
-        $info = $this->menuModel->getOneInfo(['id'=>$id],'id,name,parent_id,level');
+        $info = $this->menuModel->getOneInfo(['id' => $id], 'id,name,parent_id,level');
+
+        return $info;
+    }
+
+    public function getOneMenuInfo($id)
+    {
+        $info = $this->menuModel->getOneInfo(['id' => $id]);
+
         return $info;
     }
 
@@ -48,6 +56,23 @@ class MenuApiService
         $list = $this->buildTreeList($list);
 
         return $list;
+    }
+
+    public function delData($id)
+    {
+        $where['id'] = $id;
+        $data['deleted'] = 1;
+        $res = $this->menuModel->updateData($where, $data);
+
+        return $res;
+    }
+
+    public function updateData($id, $data)
+    {
+        $where['id'] = $id;
+        $res = $this->menuModel->updateData($where, $data);
+
+        return $res;
     }
 
     private function buildTreeList($list, $pid = 0)

@@ -1,7 +1,7 @@
 <form action="" method="post" class="form form-horizontal" id="form-add">
     <div class="row cl">
-        <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>选择父级菜单：</label>
-        {if condition='$id eq -1'}
+        <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>父级菜单：</label>
+        {if condition='$pid eq -1'}
         <div class="formControls col-xs-8 col-sm-9">
              <span class="select-box">
             <select name="parent_id" id=""  class="select" size="1">
@@ -21,31 +21,32 @@
     <div class="row cl">
         <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>菜单名称：</label>
         <div class="formControls col-xs-8 col-sm-9">
-            <input type="text" class="input-text" value="" placeholder="" id="name" name="name">
+            <input type="text" class="input-text" value="<?php echo $menu_info['name'] ??''; ?>" placeholder="" id="name" name="name">
+            <input type="hidden" class="input-text" value="<?php echo $menu_info['id'] ??''; ?>" placeholder="" id="" name="id">
         </div>
     </div>
     <div class="row cl">
         <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>模块：</label>
         <div class="formControls col-xs-8 col-sm-9">
-            <input type="text" class="input-text" value="" placeholder="" id="module" name="module">
+            <input type="text" class="input-text" value="<?php echo $menu_info['module'] ??''; ?>" placeholder="" id="module" name="module">
         </div>
     </div>
     <div class="row cl">
         <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>控制器：</label>
         <div class="formControls col-xs-8 col-sm-9">
-            <input type="text" class="input-text" placeholder="" name="controller" id="controller">
+            <input type="text" class="input-text" placeholder="" value="<?php echo $menu_info['controller'] ??''; ?>" name="controller" id="controller">
         </div>
     </div>
     <div class="row cl">
         <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>方法：</label>
         <div class="formControls col-xs-8 col-sm-9">
-            <input type="text" class="input-text" placeholder="" name="action" id="action">
+            <input type="text" class="input-text" placeholder="" value="<?php echo $menu_info['action'] ??''; ?>" name="action" id="action">
         </div>
     </div>
     <div class="row cl">
         <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>排序：</label>
         <div class="formControls col-xs-8 col-sm-9">
-            <input type="text" class="input-text" placeholder="" name="order" id="order">
+            <input type="text" class="input-text" placeholder="" value="<?php echo $menu_info['order'] ??''; ?>" name="order" id="order">
         </div>
     </div>
     <!--<div class="row cl">-->
@@ -93,6 +94,10 @@
             success:"valid",
             submitHandler:function(form){
                 $(form).ajaxSubmit({
+                    beforeSend:function(){
+                        //请求前的处理
+                        index = layer.load();
+                    },
                     success:function (e) {
                         console.log(e)
                         if (e.code != 1) {
@@ -105,6 +110,14 @@
                                 parent.layer.close(index);
                             }, 2000);
                         }
+                    },
+                    complete:function(){
+                        //请求完成的处理
+                        layer.close(index);
+                    },
+                    error:function(req){
+                        //请求出错处理
+                        layer.msg(JSON.parse(req.responseText).msg,{icon:2,time:3000});
                     }
                 });
 
