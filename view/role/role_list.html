@@ -1,0 +1,76 @@
+<div class="row cl" style="background-color: #8dc8cc;text-align: center">
+    本颜色代表操作权限
+</div>
+<br>
+<?php $action= $action??""; ?>
+<div class="row cl">
+    <label class="form-label col-xs-4 col-sm-3">权限：</label>
+    <div class="formControls col-xs-8 col-sm-9">
+        {volist name='menu_info' id='vo'}
+        <dl class="permission-list">
+            <dt>
+                <label>
+                    <input type="checkbox" {if condition="$action eq 'view'"}disabled {/if} {if condition="$vo.checked eq 1"}checked{/if} value="{$vo.id}" name="menu[]" id="user-Character-0">
+                    {$vo.name}</label>
+            </dt>
+
+            {empty name="$vo.child"}
+            <br>
+            {else/}
+            {volist name="$vo.child" id='ch'}
+            <dd>
+                <dl class="row cl permission-list2">
+                    <dt class=" col-xs-4 col-sm-3">
+                        <label class="">
+                            <input type="checkbox" {if condition="$action eq 'view'"}disabled {/if} {if condition="$ch.checked eq 1"}checked{/if} value="{$ch.id}" name="menu[]" id="user-Character-0-0">
+                            {$ch.name}</label>
+                    </dt>
+                    {empty name="$ch.child"}
+                    <br>
+                    {else/}
+                    <dd class=" col-xs-8 col-sm-9">
+                        {volist name="$ch.child" id='ac'}
+                        <label class="" style="background-color: #8dc8cc">
+                            <input type="checkbox" {if condition="$action eq 'view'"}disabled {/if} {if condition="$ac.checked eq 1"}checked{/if} value="{$ac.id}" name="menu[]" id="user-Character-0-0-0">
+                            {$ac.name}</label>
+                        {/volist}
+                    </dd>
+                    {/empty}
+                </dl>
+            </dd>
+            {/volist}
+            {/empty}
+        </dl>
+        {/volist}
+
+    </div>
+</div>
+<script type="text/javascript">
+    $(function() {
+        $(".permission-list2 dd input:checkbox").click(function () {
+            var l = $(this).parent().parent().find("input:checked").length;
+            var l2 = $(this).parents(".permission-list").find(".permission-list2 dd").find("input:checked").length;
+            if ($(this).prop("checked")) {
+                $(this).closest("dl").find("dt input:checkbox").prop("checked", true);
+                $(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked", true);
+            } else {
+                if (l == 0) {
+                    $(this).closest("dl").find("dt input:checkbox").prop("checked", false);
+                }
+                if (l2 == 0) {
+                    $(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked", false);
+                }
+            }
+        });
+        $(".permission-list2 dt input:checkbox").click(function () {
+            var l2 = $(this).parents(".permission-list").find(".permission-list2 dt").find("input:checked").length;
+            if ($(this).prop("checked")) {
+                $(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked", true);
+            } else {
+                if (l2 == 0) {
+                    $(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked", false);
+                }
+            }
+        })
+    })
+</script>

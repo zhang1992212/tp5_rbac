@@ -26,13 +26,14 @@ abstract class Auth extends Base
             if ('index' === Request::instance()->module() && 'Index' === Request::instance()->controller()) {
                 Request::instance()->isSystemMenu = '1';
             }
-            try {
-                return \call_user_func([new $controller(), $method], Request::instance());
-            } catch (Exception $e) {
-                return $this->errorMsg('服务器内部错误',500);
-            }
+            return \call_user_func([new $controller(), $method], Request::instance());
+//            try {
+//                return \call_user_func([new $controller(), $method], Request::instance());
+//            } catch (Exception $e) {
+//                return $this->errorMsg('服务器内部错误',500);
+//            }
         }
-
-        return abort(404, '页面不存在');
+        return $this->NotFound();
     }
 }
+

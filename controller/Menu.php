@@ -13,6 +13,7 @@ use think\Request;
 class Menu extends Base
 {
     private $menuApi;
+    private const VALIDATE = 'geek1992\tp5_rbac\validate\MenuValidate';
 
     public function __construct()
     {
@@ -44,11 +45,16 @@ class Menu extends Base
     {
         if ($request->isPost()) {
             $params = $request->post();
-            $parent_id = $request->post('parent_id');
-            if (-2 === $parent_id) {
+            $parent_id = $request->post('parent_id', '-2', 'int');
+            if (-2 === (int)$parent_id) {
                 return $this->error('请选择父级菜单');
-            } elseif (-1 === $parent_id) {
+            } elseif (-1 === (int)$parent_id) {
                 $parent_id = 0;
+            }
+            $result = $this->validate($params,static::VALIDATE);
+            if(true !== $result){
+                // 验证失败 输出错误信息
+                return $this->badRequest('修改失败！'.$result);
             }
             $params['parent_id'] = $parent_id;
             $id = $this->menuApi->insertData($params);
@@ -76,6 +82,11 @@ class Menu extends Base
     {
         if ($request->isPost()) {
             $params = $request->post();
+            $result = $this->validate($params,static::VALIDATE);
+            if(true !== $result){
+                // 验证失败 输出错误信息
+                return $this->badRequest('修改失败！'.$result);
+            }
             $id = $params['id'];
             unset($params['id']);
             $res = $this->menuApi->updateData($id, $params);
@@ -83,11 +94,11 @@ class Menu extends Base
                 return $this->success('修改成功！');
             }
 
-            return $this->errorMsg('修改失败！服务器错误', 500);
+            return $this->serverError();
         }
         $id = $request->get('id', -1, 'int');
         if (-1 === $id) {
-            return $this->errorMsg('错误的ID',400);
+            return $this->badRequest('错误的ID');
         }
         $list = $this->menuApi->getOneMenuInfo($id);
         $pList = [

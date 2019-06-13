@@ -3,7 +3,7 @@
 use think\migration\Migrator;
 use think\migration\db\Column;
 
-class CreateAccountTable extends Migrator
+class CreateRoleTable extends Migrator
 {
     /**
      * Change Method.
@@ -28,11 +28,9 @@ class CreateAccountTable extends Migrator
      */
     public function up()
     {
-        $table = $this->table('admin_account');
-        $table->addColumn('account', 'string',array('limit' => 200,'default'=>'','comment'=>'账号'))
-            ->addColumn('password', 'string',array('limit' => 200,'default'=>'','comment'=>'密码'))
-            ->addColumn('name', 'string',array('limit' => 200,'default'=>'','comment'=>'用户名'))
-            ->addColumn('is_active', 'integer',array('limit' => 2,'default'=>0,'comment'=>'类型 0未激活 1已激活'))
+        $table = $this->table('admin_role');
+        $table->addColumn('name', 'string',array('limit' => 200,'default'=>'','comment'=>'角色名称'))
+            ->addColumn('type', 'integer',array('limit' => 2,'default'=>1,'comment'=>'类型 0系统初始化类型  1普通类型'))
             ->addColumn('deleted', 'integer',array('limit' => 2,'default'=>0,'comment'=>'是否删除'))
             ->addTimestamps()   //默认生成create_time和update_time两个字段
             ->create();
@@ -40,6 +38,6 @@ class CreateAccountTable extends Migrator
 
     public function down()
     {
-        $this->dropTable('admin_account');
+        $this->dropTable('admin_role');
     }
 }

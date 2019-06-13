@@ -116,7 +116,7 @@ class Base extends Controller
         ];
 
         if ('html' == strtolower($type)) {
-            $result = $this->serverError($code);
+            $result = $this->notFound($code, $msg);
         }
 
         $response = Response::create($result, $type)->header($header)->code($code);
@@ -236,14 +236,20 @@ class Base extends Controller
         return $html;
     }
 
-    public function badRequest($code = 404)
+    public function badRequest($msg)
     {
-        return $this->serverError($code);
+        return $this->errorMsg($msg, 400);
     }
 
-    public function serverError($code)
+    public function serverError($msg = '服务器内部错误')
+    {
+        return $this->errorMsg($msg, 500);
+    }
+
+    public function notFound($code=404, $msg='')
     {
         $this->assign('code', $code);
+        $this->assign('msg', $msg);
         return $this->myFetch('blocks/error');
     }
 }

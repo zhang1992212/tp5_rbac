@@ -22,7 +22,7 @@ class MenuApiService
             $parentInfo = $this->menuModel->getOneInfo(['id' => $data['parent_id']], 'level');
             $data['level'] = $parentInfo['level'] + 1;
         }
-
+        $data['type'] = 1;
         return $this->menuModel->insertData($data);
     }
 
@@ -58,6 +58,40 @@ class MenuApiService
         return $list;
     }
 
+    public function getChildList($is_super = 1, $menu_id = [])
+    {
+        $list = $this->menuModel->getList([], '', 'order desc');
+        $list = $this->buildChildTreeList($list, 0, $is_super, $menu_id);
+
+        return $list;
+    }
+    private function buildChildTreeList($list, $pid = 0, $is_super=1, $menu_id = [])
+    {
+        if (1 === \count($list)) {
+            return $list;
+        }
+        $tree = [];
+        foreach ($list as $item) {
+            $item['checked'] = 0;
+            if ($is_super === 1 || in_array($item['id'], $menu_id)) {
+                $item['checked'] = 1;
+            }
+            $item['str'] = '';
+            if ($item['parent_id'] === $pid) {
+                if (2 === $item['level']) {
+                    $item['str'] = '┣ ━ ';
+                } elseif (3 === $item['level']) {
+                    $item['str'] = '┣ ━━━ ';
+                }
+                $item['child'] = $this->buildChildTreeList($list, $item['id'], $is_super, $menu_id);
+                array_push($tree, $item);
+            }
+        }
+
+        return $tree;
+    }
+
+
     public function delData($id)
     {
         $where['id'] = $id;
@@ -82,11 +116,12 @@ class MenuApiService
         }
         $tree = [];
         foreach ($list as $item) {
+            $item['str'] = '';
             if ($item['parent_id'] === $pid) {
                 if (2 === $item['level']) {
-                    $item['name'] = '┣ ━ '.$item['name'];
+                    $item['str'] = '┣ ━ ';
                 } elseif (3 === $item['level']) {
-                    $item['name'] = '┣ ━━━ '.$item['name'];
+                    $item['str'] = '┣ ━━━ ';
                 }
                 array_push($tree, $item);
                 $tmp = $this->buildTreeList($list, $item['id']);

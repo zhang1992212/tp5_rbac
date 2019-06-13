@@ -28,12 +28,24 @@ abstract class BaseModel extends Model
             $build = $build->order($order);
         }
         $res = $build->select();
-//        echo $build->getLastSql();exit();
+
         if (!empty($res)) {
-            $list = collection($res)->toArray();
+            $list = $this->objectToArray($res);
         }
 
         return $list;
+    }
+
+    public function getCount($where = [])
+    {
+        $build = $this->deleted();
+
+        if (!empty($where)) {
+            $build = $build->where($where);
+        }
+        $res = $build->count();
+
+        return empty($res) ? 0 : $res;
     }
 
     public function getTotal($where)
@@ -61,8 +73,16 @@ abstract class BaseModel extends Model
         return $res;
     }
 
+    public function insertAllData($data)
+    {
+        $res = $this->insertAll($data);
+
+        return $res;
+    }
+
     public function updateData($where, $data)
     {
+        $data['update_time'] = date('Y-m-d H:i:s');
         $res = $this->where($where)->update($data);
 
         return $res;
@@ -73,5 +93,14 @@ abstract class BaseModel extends Model
         $this->where(['deleted' => 0]);
 
         return $this;
+    }
+
+    private function objectToArray($items)
+    {
+        $res = array_map(function ($item) {
+            return $item->data;
+        }, $items);
+
+        return $res;
     }
 }

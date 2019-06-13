@@ -28,7 +28,7 @@ class CreateMenuTable extends Migrator
      */
     public function up()
     {
-        $table = $this->table('menu');
+        $table = $this->table('admin_menu');
         $table->addColumn('name', 'string',array('limit' => 200,'default'=>'','comment'=>'菜单名称'))
             ->addColumn('icon', 'string',array('limit' => 200,'default'=>'','comment'=>'图标'))
             ->addColumn('module', 'string',array('limit' => 200,'default'=>'','comment'=>'模块'))
@@ -45,6 +45,6 @@ class CreateMenuTable extends Migrator
 
     public function down()
     {
-        $this->dropTable('menu');
+        $this->dropTable('admin_menu');
     }
 }
