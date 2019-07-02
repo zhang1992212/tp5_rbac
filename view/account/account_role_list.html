@@ -1,0 +1,45 @@
+<?php $action= $action??""; ?>
+<div class="row cl">
+    <label class="form-label col-xs-4 col-sm-3">角色列表：</label>
+    <div class="formControls col-xs-8 col-sm-9">
+        {volist name='info' id='vo'}
+        <dl class="permission-list" style="margin-bottom: 5px;border-bottom: 1px solid #000">
+            <dt>
+                <label>
+                    <input type="checkbox" {if condition="$action eq 'view'"}disabled {/if} {if condition="$vo.checked eq 1"}checked{/if} value="{$vo.id}" name="menu[]" id="user-Character-0">
+                    {$vo.name}</label>
+            </dt>
+        </dl>
+        {/volist}
+
+    </div>
+</div>
+<script type="text/javascript">
+    $(function() {
+        $(".permission-list2 dd input:checkbox").click(function () {
+            var l = $(this).parent().parent().find("input:checked").length;
+            var l2 = $(this).parents(".permission-list").find(".permission-list2 dd").find("input:checked").length;
+            if ($(this).prop("checked")) {
+                $(this).closest("dl").find("dt input:checkbox").prop("checked", true);
+                $(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked", true);
+            } else {
+                if (l == 0) {
+                    $(this).closest("dl").find("dt input:checkbox").prop("checked", false);
+                }
+                if (l2 == 0) {
+                    $(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked", false);
+                }
+            }
+        });
+        $(".permission-list2 dt input:checkbox").click(function () {
+            var l2 = $(this).parents(".permission-list").find(".permission-list2 dt").find("input:checked").length;
+            if ($(this).prop("checked")) {
+                $(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked", true);
+            } else {
+                if (l2 == 0) {
+                    $(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked", false);
+                }
+            }
+        })
+    })
+</script>

@@ -1,0 +1,174 @@
+<div class="cl pd-5 bg-1 bk-gray mt-20">
+    <span class="l">
+        <a href="javascript:;" onclick="common_add('添加账号','account_add','800','500')" class="btn btn-primary radius">
+            <i class="Hui-iconfont">&#xe600;</i> 添加账号</a>
+    </span>
+    <span class="r">共有数据：<strong>{$total}</strong> 条</span>
+</div>
+<table class="table table-border table-bordered table-bg table-sort">
+    <thead>
+    <tr>
+        <th scope="col" colspan="200">账号管理</th>
+    </tr>
+    <tr class="text-c">
+        <th width="40">ID</th>
+        <th width="150">账号</th>
+        <th width="150">昵称</th>
+        <th width="150">状态</th>
+        <th>创建时间</th>
+        <th>更新时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+</table>
+<script>
+    /* 增加 */
+    function common_add(title,url,w,h){
+        layer_show(title,url,w,h);
+    }
+
+    /* 删除 */
+    function common_del(obj,id){
+        layer.confirm('确认要删除吗？',function(index){
+            //此处请求后台程序，下方是成功后的前台处理……
+            $.ajax({
+                url:"account_del",    //请求的url地址
+                dataType:"json",   //返回格式为json
+                async:true,//请求是否异步，默认为异步，这也是ajax重要特性
+                data:{"id":id},    //参数值
+                type:"POST",   //请求方式
+                beforeSend:function(){
+                    //请求前的处理
+                    index = layer.load();
+                },
+                success:function(req){
+                    layer.msg('已删除!',{icon:1,time:1000});
+                    setTimeout(function () {
+                        window.location.reload()
+                    },1000)
+                },
+                complete:function(){
+                    //请求完成的处理
+                    layer.close(index);
+                },
+                error:function(req){
+                    //请求出错处理
+                    layer.msg(JSON.parse(req.responseText).msg,{icon:2,time:3000});
+                }
+            });
+        });
+    }
+
+    /* 增加 */
+    function common_edit(title,url,w,h){
+        layer_show(title,url,w,h);
+    }
+
+    function common_active(obj,id, type) {
+        if (type == 2) {
+            msg = '禁用'
+        } else {
+            msg = '激活'
+        }
+        layer.confirm('确认'+msg+'吗？' ,function(index){
+            //此处请求后台程序，下方是成功后的前台处理……
+            $.ajax({
+                url:"account_active",    //请求的url地址
+                dataType:"json",   //返回格式为json
+                async:true,//请求是否异步，默认为异步，这也是ajax重要特性
+                data:{"id":id,'type':type},    //参数值
+                type:"POST",   //请求方式
+                beforeSend:function(){
+                    //请求前的处理
+                    index = layer.load();
+                },
+                success:function(req){
+                    layer.msg('已'+msg+'!',{icon:1,time:1000});
+                    setTimeout(function () {
+                        window.location.reload()
+                    },1000)
+                },
+                complete:function(){
+                    //请求完成的处理
+                    layer.close(index);
+                },
+                error:function(req){
+                    //请求出错处理
+                    layer.msg(JSON.parse(req.responseText).msg,{icon:2,time:3000});
+                }
+            });
+        });
+    }
+
+    /*管理员-编辑*/
+    function common_edit(title,url,id,w,h){
+        layer_show(title,url,w,h);
+    }
+
+    table = $('.table-sort').dataTable({
+        "processing": true,
+        "searching": true,
+        "serverSide": true,
+        "aLengthMenu": [[10, 25, 50], [10, 25, 50]],
+        "ajax": {
+            "url": "getAccountList",
+            "type": "POST",
+            "dataType" : "json",
+            "data": function (d) {
+                //删除多余请求参数
+                for (var key in d) {
+                    if (key.indexOf("columns") == 0 || key.indexOf("order") == 0 || key.indexOf("search") == 0) { //以columns开头的参数删除
+                        delete d[key];
+                    }
+                }
+                var searchParams = {
+                    "retryType": $("#retryType").val(),
+                    "departmentCode": $("#departmentCode").val() != "" ? $("#departmentCode").val() : null,
+                    "projectCode": $("#projectCode").val() != "" ? $("#projectCode").val() : null,
+                    "serviceName": $("#serviceName").val() != "" ? $("#serviceName").val() : null,
+                };
+                //附加查询参数
+                if (searchParams) {
+                    $.extend(d, searchParams); //给d扩展参数
+                }
+            }
+
+        },
+        "columns": [
+            {"data": "id"},
+            {"data": "name"},
+            {"data": "account"},
+            {
+                "data": "is_active",
+                "render": function ( data, type, row ) {
+                    let res = "<a href=\"javascript:;\" class='label label-success'>已激活</a>";
+                    if (data == 0) {
+                        res = "<a href=\"javascript:;\" class='label label-warning'>未激活</a>";
+                    }
+                    return res;
+                },
+            },
+            {"data": "create_time"},
+            {"data": "update_time"},
+            {
+                "render": function ( data, type, row ) {
+                    let res = '';
+                    if (row.id != 1) {
+                        if (row.is_active == 1) {
+                            res += "&nbsp;&nbsp;<a href=\"javascript:;\" onclick=\"common_active(this,'" + row.id + "', 2)\" class=\"btn btn-warning radius\">禁用</a>";
+                        } else {
+                            res += "&nbsp;&nbsp;<a href=\"javascript:;\" onclick=\"common_active(this,'" + row.id + "', 1)\" class=\"btn btn-success radius\">激活</a>";
+                        }
+                        <!--激活 取消激活-->
+                        <!--删除-->
+                        res += "&nbsp;&nbsp;<a href=\"javascript:;\" onclick=\"common_edit('角色管理','account_role_edit?id=" + row.id + "','900','500')\" class=\"btn btn-secondary radius\">角色管理</a>";
+                        // 编辑角色
+                        res += "&nbsp;&nbsp;<a href=\"javascript:;\" onclick=\"common_del(this,'" + row.id + "')\" class=\"btn btn-danger radius\">删除</a>";
+                    }
+                    return res
+                }
+            }
+        ],
+    });
+
+</script>

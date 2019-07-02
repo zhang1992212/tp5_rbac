@@ -20,6 +20,6 @@ class AccountSeeder extends Seeder
             'name' => 'admin',
             'is_active' => 1
         ];
-        $this->table('account')->insert($data)->save();
+        $this->table('admin_account')->insert($data)->save();
     }
 }

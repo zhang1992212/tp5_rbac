@@ -28,7 +28,7 @@ class CreateAccountTable extends Migrator
      */
     public function up()
     {
-        $table = $this->table('account');
+        $table = $this->table('admin_account');
         $table->addColumn('account', 'string',array('limit' => 200,'default'=>'','comment'=>'账号'))
             ->addColumn('password', 'string',array('limit' => 200,'default'=>'','comment'=>'密码'))
             ->addColumn('name', 'string',array('limit' => 200,'default'=>'','comment'=>'用户名'))
@@ -40,6 +40,6 @@ class CreateAccountTable extends Migrator
 
     public function down()
     {
-        $this->dropTable('account');
+        $this->dropTable('admin_account');
     }
 }
