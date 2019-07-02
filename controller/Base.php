@@ -2,9 +2,14 @@
 
 namespace geek1992\tp5_rbac\controller;
 
+use geek1992\tp5_rbac\library\Formatter;
+use geek1992\tp5_rbac\model\Menu;
 use think\Config;
 use think\Controller;
+use think\exception\HttpResponseException;
 use think\Request;
+use think\Response;
+use think\Url;
 
 \defined('DS') or \define('DS', \DIRECTORY_SEPARATOR);
 \defined('VIEW_PATH') or \define('VIEW_PATH', __DIR__.DS.'..'.DS.'view'.DS);
@@ -15,9 +20,10 @@ use think\Request;
  */
 class Base extends Controller
 {
+    use \geek1992\tp5_rbac\traits\Menu;
+
     protected const NO_AUTH_LOGIN_ACTION = [
         'login',
-        'openfile',
     ];
 
     public function __construct()
@@ -28,21 +34,21 @@ class Base extends Controller
 
     public function _initialize()
     {
-        if (null === session('userInfo') && !\in_array(Request::instance()->action(), static::NO_AUTH_LOGIN_ACTION, true)) {
+        $request = Request::instance();
+        if (null === session('userInfo') && !\in_array($request->action(), static::NO_AUTH_LOGIN_ACTION, true)) {
             return $this->redirect(url('login', ['method' => 'login']));
         }
-//        $this->assign('layout',VIEW_PATH);
 
-//        // 获取访问url地址
-//        $url_arr1 = explode('.', trim($_SERVER['REQUEST_URI'], '/'))[0];
-//        if (!empty($url_arr1)) {
-//            $url_arr = explode('/', $url_arr1);
-//            $url = $url_arr[0] . '/' . $url_arr[1] . '/' . $url_arr[2];
-//        } else {
-//            $url = '/';
-//        }
-//        // 获取所有菜单信息
-//        $menu_list = $this->permission->getAllList();
+        $isSystemMenu = $request->isSystemMenu ?? '0';
+
+        // 获取所有菜单信息
+        $admin_info = session('userInfo');
+        $admin_info['is_supper'] = 1;
+        if (1 === $admin_info['is_supper']) {
+            $menu_list = $this->getSupperMenu($isSystemMenu);
+        } else {
+            $menu_list = [];
+        }
 //        // 获取用户权限
 //        $user_permission_info = self::_getUserPermission();
 //        if ($user_permission_info['check'] == -1 || $user_permission_info['check'] == -2) {
@@ -55,12 +61,10 @@ class Base extends Controller
 //            //其他用户
 //            $menu_new_list = self::_dealWithMenu($menu_list, 0, $url, $user_permission_info['check']);
 //        }
-        $admin_info = session('userInfo');
-//        halt($admin_info);
+
 //        $admin_info['role_name'] = isset($user_permission_info['data']['name']) ? $user_permission_info['data']['name'] : '';
         $this->assign('admin_info', $admin_info);
-//        $this->assign('menu_list', $menu_new_list);
-        $this->assign('menu_list', $menu_new_list = []);
+        $this->assign('menu_list_tree', $menu_list);
     }
 
     public function myFetch($name = '', $vars = [], $replace = [], $config = [])
@@ -69,36 +73,72 @@ class Base extends Controller
     }
 
     /**
-     * 注册样式文件.
+     * 没有导航的布局文件.
      */
-    public function openFile(Request $request)
+    public function noNavLayout()
     {
-        $text = '';
-        $file = explode('geek', $request->path());
-        $extension = substr(strrchr($file[1], '.'), 1);
-        switch ($extension) {
-            case 'css':
-                $text = 'text/css';
-                break;
-            case 'js':
-                $text = 'text/js';
-                break;
-            case  'woff':
-                $text = 'woff';
-                break;
-            case  'png':
-                $text = 'png';
-                break;
-            case  'jpg':
-                $text = 'jpg';
-                break;
-            default:
-                return false;
+        $this->view->engine->layout(VIEW_PATH.'no_nav_layout.html');
+    }
+
+    /**
+     * 关闭布局
+     */
+    public function noLayOut()
+    {
+        $this->view->engine->layout(false);
+    }
+
+    public function badRequest($msg)
+    {
+        return $this->errorMsg($msg, 400);
+    }
+
+    public function serverError($msg = '服务器内部错误')
+    {
+        return $this->errorMsg($msg, 500);
+    }
+
+    public function notFound($code = 404, $msg = '')
+    {
+        $this->assign('code', $code);
+        $this->assign('msg', $msg);
+
+        return $this->myFetch('blocks/error');
+    }
+
+
+    protected function errorMsg($msg = '', $code = 200, $data = '', $url = null, $wait = 3, array $header = [])
+    {
+        if (null === $url) {
+            $url = Request::instance()->isAjax() ? '' : 'javascript:history.back(-1);';
+        } elseif ('' !== $url && !strpos($url, '://') && 0 !== strpos($url, '/')) {
+            $url = Url::build($url);
         }
 
-        $pach = VIEW_PATH.'static/'.substr($file[1], 1);
-        $file = file_get_contents($pach);
+        $type = $this->getResponseType();
+        $result = [
+            'code' => $code,
+            'msg' => $msg,
+            'data' => $data,
+            'url' => $url,
+            'wait' => $wait,
+        ];
 
-        return response($file, 200, ['Content-Length' => \strlen($file)])->contentType($text);
+        if ('html' === strtolower($type)) {
+            $result = $this->notFound($code, $msg);
+        }
+
+        $response = Response::create($result, $type)->header($header)->code($code);
+
+        throw new HttpResponseException($response);
     }
+
+    /**
+     * @return Formatter
+     */
+    protected function getFormatter(): Formatter
+    {
+        return Formatter::newInstance();
+    }
+    
 }

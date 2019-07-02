@@ -1,0 +1,113 @@
+<div class="cl pd-5 bg-1 bk-gray mt-20">
+    <span class="l">
+        <a href="javascript:;" onclick="common_add('添加菜单','menu_add','800','500')" class="btn btn-primary radius">
+            <i class="Hui-iconfont">&#xe600;</i> 添加菜单</a>
+    </span>
+    <span class="r">共有数据：<strong><?php echo count($list); ?></strong> 条</span>
+</div>
+<table class="table table-border table-bordered table-bg">
+    <thead>
+    <tr>
+        <th scope="col" colspan="200">菜单管理</th>
+    </tr>
+    <tr class="text-c">
+        <th width="25"><input type="checkbox" name="" value=""></th>
+        <th width="40">ID</th>
+        <th width="150">菜单名</th>
+        <th width="50">图标</th>
+        <th width="90">模块</th>
+        <th width="150">控制器</th>
+        <th>方法</th>
+        <th width="130">排序</th>
+        <th width="100">菜单类型</th>
+        <th width="100">创建时间</th>
+        <th width="100">更新时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {empty name='list'}
+    <td colspan="200" style="text-align: center">暂无数据</td>
+    {else/}
+    {volist name='list' id='item'}
+    <tr class="text-c">
+        <td><input type="checkbox" value="1" name=""></td>
+        <td>{$item.id}</td>
+        <td style="text-align: left">{$item.str}{$item.name}</td>
+        <td><i class="Hui-iconfont">{$item.icon}</i></td>
+        <td>{$item.module}</td>
+        <td>{$item.controller}</td>
+        <td>{$item.action}</td>
+        <td>{$item.order}</td>
+        <td>
+            {if condition="$item['type'] eq 0"}
+            系统菜单
+            {else/}
+            普通菜单
+            {/if}
+        </td>
+        <td>{$item.create_time}</td>
+        <td>{$item.update_time}</td>
+        <td>
+            {if condition="$item['type'] neq 0"}
+                <!--添加-->
+                {if condition="$item['level'] eq 1"}
+                <a href="javascript:;" onclick="common_add('添加子菜单','menu_add?id={$item.id}','800','500')" class="btn btn-secondary radius">添加子菜单</a>
+                {/if}
+                {if condition="$item['level'] eq 2"}
+                <a href="javascript:;" onclick="common_add('添加功能按钮','menu_add?id={$item.id}','800','500')" class="btn btn-primary radius">添加功能按钮</a>
+                {/if}
+                <!--删除-->
+                <a href="javascript:;" onclick="common_edit('编辑','menu_edit?id={$item.id}','800','500')" class="btn btn-warning radius">编辑</a>
+                <!--删除-->
+                <a href="javascript:;" onclick="common_del(this,'{$item.id}')" class="btn btn-danger radius">删除</a>
+            {/if}
+        </td>
+    </tr>
+    {/volist}
+    {/empty}
+    </tbody>
+</table>
+<script>
+    /* 增加 */
+    function common_add(title,url,w,h){
+        layer_show(title,url,w,h);
+    }
+
+    /* 删除 */
+    function common_del(obj,id){
+        layer.confirm('确认要删除吗？',function(index){
+            //此处请求后台程序，下方是成功后的前台处理……
+            $.ajax({
+                url:"menu_del",    //请求的url地址
+                dataType:"json",   //返回格式为json
+                async:true,//请求是否异步，默认为异步，这也是ajax重要特性
+                data:{"id":id},    //参数值
+                type:"POST",   //请求方式
+                beforeSend:function(){
+                    //请求前的处理
+                    index = layer.load();
+                },
+                success:function(req){
+                    $(obj).parents("tr").remove();
+                    layer.msg('已删除!',{icon:1,time:1000});
+                },
+                complete:function(){
+                    //请求完成的处理
+                    layer.close(index);
+                },
+                error:function(req){
+                    //请求出错处理
+                    layer.msg(JSON.parse(req.responseText).msg,{icon:2,time:3000});
+                }
+            });
+        });
+    }
+
+    /*管理员-编辑*/
+    function common_edit(title,url,id,w,h){
+        layer_show(title,url,w,h);
+    }
+
+
+</script>

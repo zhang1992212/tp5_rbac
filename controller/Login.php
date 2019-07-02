@@ -27,6 +27,9 @@ class Login extends Base
      */
     public function login(Request $request)
     {
+        if (session('userInfo')) {
+            return $this->redirect(url('welcome', ['method' => 'index']));
+        }
         if ($request->isPost()) {
             //登录
             $info = $this->LoginApiService->checkLogin($request->param('account'), $request->param('password'));
@@ -37,7 +40,7 @@ class Login extends Base
                 }
                 session('userInfo', $info);
 
-                return $this->success('登录成功', url('Index/index'));
+                return $this->success('登录成功', url('welcome', ['method' => 'index']));
             }
 
             return $this->error('登录失败，用户名或密码错误');
