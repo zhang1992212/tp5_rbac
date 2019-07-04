@@ -2,9 +2,7 @@
 
 namespace geek1992\tp5_rbac\service;
 
-
 use geek1992\tp5_rbac\model\Role;
-use function Sodium\add;
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
@@ -31,25 +29,21 @@ class RoleApiService
         $insertData = array_map(function ($item) use ($id) {
             return ['role_id' => $id, 'menu_id' => $item];
         }, $menu);
+
         return $this->roleMenuApi->insertAllData($insertData);
     }
 
-    public function getList($where=[], $limit='')
+    public function getList(array $where = [], ?array $orders = null, int $page = 0, int $limit = 10, ?array $fields = null)
     {
-        $list = $this->roleModel->getList($where, $limit);
-        return $list;
-    }
-
-    public function getCount()
-    {
-        $list = $this->roleModel->getCount();
+        $list = $this->roleModel->search($where, null, $page, $limit, $fields);
 
         return $list;
     }
 
-    public function getInfo($id)
+
+    public function getInfo(int $id, ?array $orders=null, ?array $fields=null)
     {
-        $list = $this->roleModel->getOneInfo(['id' => $id]);
+        $list = $this->roleModel->getById($id, $orders, $fields);
 
         return $list;
     }
@@ -64,9 +58,11 @@ class RoleApiService
     }
 
     /**
-     * 更新权限
+     * 更新权限.
+     *
      * @param $id
      * @param $data
+     *
      * @return Role
      */
     public function updateData($id, $data)
@@ -98,16 +94,18 @@ class RoleApiService
         return $res;
     }
 
-    public function getRoleMenuList($id)
+    public function getRoleMenuList(int $id = 0)
     {
         $super = 1;
         $menu_id = [];
-        if (!\in_array((int)$id, static::SUPER_ROLE, true)) {
+        if (!\in_array((int) $id, static::SUPER_ROLE, true)) {
             $menu = $this->roleMenuApi->getListById($id);
             $menu_id = array_column($menu, 'menu_id');
             $super = 0;
         }
+
         $list = $this->menuApi->getChildList($super, $menu_id);
+
         return $list;
     }
 }

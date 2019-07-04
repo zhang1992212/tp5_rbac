@@ -3,7 +3,7 @@
 namespace geek1992\tp5_rbac\controller;
 
 use geek1992\tp5_rbac\library\Formatter;
-use geek1992\tp5_rbac\model\Menu;
+use geek1992\tp5_rbac\model\AccountRole;
 use think\Config;
 use think\Controller;
 use think\exception\HttpResponseException;
@@ -38,39 +38,28 @@ class Base extends Controller
         if (null === session('userInfo') && !\in_array($request->action(), static::NO_AUTH_LOGIN_ACTION, true)) {
             return $this->redirect(url('login', ['method' => 'login']));
         }
+        if (!(null === session('userInfo') && $request->action() === 'login')) {
+            $isSystemMenu = $request->isSystemMenu ?? '0';
 
-        $isSystemMenu = $request->isSystemMenu ?? '0';
-
-        // 获取所有菜单信息
-        $admin_info = session('userInfo');
-        $admin_info['is_supper'] = 1;
-        if (1 === $admin_info['is_supper']) {
-            $menu_list = $this->getSupperMenu($isSystemMenu);
-        } else {
-            $menu_list = [];
+            // 获取所有菜单信息
+            $admin_info = session('userInfo');
+            //超级管理员 、系统管理员 拥有全部菜单权限
+            if (1 === $admin_info['is_supper'] || in_array(2, $admin_info['role_id'])) {
+                $menu_list = $this->getSupperMenu($isSystemMenu);
+            } else {
+                $menu_list = $this->getCommonMenu($isSystemMenu, $admin_info['role_id']);
+            }
+            $this->assign('admin_info', $admin_info);
+            $this->assign('menu_list_tree', $menu_list);
         }
-//        // 获取用户权限
-//        $user_permission_info = self::_getUserPermission();
-//        if ($user_permission_info['check'] == -1 || $user_permission_info['check'] == -2) {
-//            //未配置 -1 角色信息 -2 权限菜单
-//            $menu_new_list = [];
-//        } elseif ($user_permission_info['check'] == 1) {
-//            //超级管理员
-//            $menu_new_list = self::_dealWithMenu($menu_list, 0, $url);
-//        } else {
-//            //其他用户
-//            $menu_new_list = self::_dealWithMenu($menu_list, 0, $url, $user_permission_info['check']);
-//        }
-
-//        $admin_info['role_name'] = isset($user_permission_info['data']['name']) ? $user_permission_info['data']['name'] : '';
-        $this->assign('admin_info', $admin_info);
-        $this->assign('menu_list_tree', $menu_list);
     }
 
     public function myFetch($name = '', $vars = [], $replace = [], $config = [])
     {
         return parent::fetch(VIEW_PATH.$name.'.'.Config::get('url_html_suffix'), $vars = [], $replace = ['__ADMIN_STATIC__' => STATIC_PATH], $config = []);
     }
+
+
 
     /**
      * 没有导航的布局文件.
@@ -106,7 +95,6 @@ class Base extends Controller
         return $this->myFetch('blocks/error');
     }
 
-
     protected function errorMsg($msg = '', $code = 200, $data = '', $url = null, $wait = 3, array $header = [])
     {
         if (null === $url) {
@@ -140,5 +128,36 @@ class Base extends Controller
     {
         return Formatter::newInstance();
     }
-    
+
+    /**
+     * 通过id 获取账户信息.
+     *
+     * @param int $id
+     *
+     * @return array
+     */
+    public function getAdminInfo(int $id)
+    {
+        $adminInfo = ['role_name' => '', 'is_supper' => 0, 'role_id' => []];
+        $accountModel = new \geek1992\tp5_rbac\model\Account();
+        if (1 === $id) {
+            $adminInfo['role_name'] = '超级管理员';
+            $adminInfo['is_supper'] = 1;
+        } else {
+            $accountRoleModel = new AccountRole();
+            $roleModel = new \geek1992\tp5_rbac\model\Role();
+            $accountRole = $accountRoleModel->searchAll(['account_id' => $id], null, ['role_id']);
+            $role_id = array_column($accountRole['data'], 'role_id');
+            if (!empty($role_id)) {
+                $role = $roleModel->getById($role_id[0], null, ['name']);
+                $adminInfo['role_name'] = $role['name'];
+                $adminInfo['role_id'] = $role_id;
+            }
+            unset($accountRoleModel, $roleModel);
+        }
+        $account = $accountModel->getById($id, null, ['id', 'name', 'account']);
+        unset($accountModel);
+
+        return array_merge($account, $adminInfo);
+    }
 }

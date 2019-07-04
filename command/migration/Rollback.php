@@ -15,7 +15,7 @@ use think\console\Input;
 use think\console\Output;
 use think\migration\command\Migrate;
 
-class Rollback extends Migrate
+class Rollback extends RbacMigrate
 {
     /**
      * {@inheritdoc}
