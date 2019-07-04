@@ -2,6 +2,7 @@
 
 namespace geek1992\tp5_rbac\service;
 
+use geek1992\tp5_rbac\library\StringHelper;
 use geek1992\tp5_rbac\model\Account;
 
 /**
@@ -18,8 +19,8 @@ class LoginApiService
 
     public function checkLogin($account, $password)
     {
-        $where = ['account' => $account, 'password' => md5($password)];
-        $info = $this->accountModel->getOneInfo($where);
+        $condition = ['account' => $account, 'password' =>StringHelper::getPassword($password)];
+        $info = $this->accountModel->getByCondition($condition, null, ['id', 'is_active']);
 
         return $info;
     }

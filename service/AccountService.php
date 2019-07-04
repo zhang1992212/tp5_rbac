@@ -2,6 +2,7 @@
 
 namespace geek1992\tp5_rbac\service;
 
+use geek1992\tp5_rbac\library\StringHelper;
 use geek1992\tp5_rbac\model\Account;
 use geek1992\tp5_rbac\model\AccountRole;
 use geek1992\tp5_rbac\model\Role;
@@ -48,6 +49,7 @@ class AccountService
 
     public function insertData($data)
     {
+        $data['password'] =  StringHelper::getPassword($data['password']);
         return $this->accountModel->insertData($data);
     }
 
@@ -62,10 +64,10 @@ class AccountService
     {
         $role = $this->roleModel->searchAll(['id' => ['neq', 1]], null, ['id', 'name']);
         $roleInfo = $role['data'];
-        $accountRole = $this->accountRoleModel->searchAll(['account_id' => $accountId]);
-        $accountRoleInfo = $accountRole['data'];
+        $accountRole = $this->accountRoleModel->searchAll(['account_id' => $accountId], null, ['role_id']);
+        $accountRoleInfo = array_column($accountRole['data'], 'role_id');
         foreach ($roleInfo as $key => $item) {
-            $roleInfo[$key]['checked'] = \in_array($item['id'], $accountRoleInfo, true) ? 1 : 0;
+            $roleInfo[$key]['checked'] = \in_array((int) $item['id'], $accountRoleInfo, true) ? 1 : 0;
         }
 
         return $roleInfo;

@@ -12,3 +12,47 @@
         </div>
     </div>
 </form>
+<script type="text/javascript">
+    $(function(){
+
+        $("#form-add").validate({
+            rules:{
+
+            },
+            onkeyup:false,
+            focusCleanup:true,
+            success:"valid",
+            submitHandler:function(form){
+                $(form).ajaxSubmit({
+                    beforeSend:function(){
+                        //请求前的处理
+                        index = layer.load();
+                    },
+                    success:function (e) {
+                        console.log(e)
+                        if (e.code != 1) {
+                            layer.msg(e.msg)
+                        } else {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            layer.msg(e.msg)
+                            setTimeout(function() {
+                                parent.location.reload();
+                                parent.layer.close(index);
+                            }, 2000);
+                        }
+                    },
+                    complete:function(){
+                        //请求完成的处理
+                        layer.close(index);
+                    },
+                    error:function(req){
+                        //请求出错处理
+                        layer.msg(JSON.parse(req.responseText).msg,{icon:2,time:3000});
+                    }
+                });
+
+            }
+        });
+
+    });
+</script>

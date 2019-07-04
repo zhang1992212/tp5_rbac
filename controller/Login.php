@@ -28,22 +28,21 @@ class Login extends Base
     public function login(Request $request)
     {
         if (session('userInfo')) {
-            return $this->redirect(url('welcome', ['method' => 'index']));
+            return $this->redirect(url('welcome/index', ['method' => 'index']));
         }
         if ($request->isPost()) {
             //登录
             $info = $this->LoginApiService->checkLogin($request->param('account'), $request->param('password'));
-            if (!empty($info)) {
-                //将用户信息记录到session中
-                if (1 === (int) $info['id']) {
-                    $info['role_name'] = '超级管理员';
-                }
-                session('userInfo', $info);
-
-                return $this->success('登录成功', url('welcome', ['method' => 'index']));
+            if (empty($info)) {
+                return $this->error('登录失败，用户名或密码错误');
+            } elseif (!empty($info) && 0 === (int)$info['is_active']) {
+                return $this->error('登录失败，该账户未激活');
             }
+            //将用户信息记录到session中
+            $info = $this->getAdminInfo((int) $info['id']);
+            session('userInfo', $info);
 
-            return $this->error('登录失败，用户名或密码错误');
+            return $this->success('登录成功', url('index/welcome', ['method' => 'index']));
         }
         $this->view->engine->layout(false);
 

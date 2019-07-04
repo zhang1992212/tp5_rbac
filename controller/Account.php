@@ -2,6 +2,7 @@
 
 namespace geek1992\tp5_rbac\controller;
 
+use geek1992\tp5_rbac\service\AccountRoleService;
 use geek1992\tp5_rbac\service\AccountService;
 use think\Request;
 
@@ -12,11 +13,13 @@ class Account extends Base
 {
     private const VALIDATE = 'geek1992\tp5_rbac\validate\AccountValidate';
     protected $accountService;
+    protected $accountRoleService;
 
     public function __construct()
     {
         parent::__construct();
         $this->accountService = new AccountService();
+        $this->accountRoleService = new AccountRoleService();
     }
 
     public function index()
@@ -51,14 +54,7 @@ class Account extends Base
         }
         if ($request->isPost()) {
             $params = $request->post();
-            $result = $this->validate($params, static::VALIDATE);
-            if (true !== $result) {
-                // 验证失败 输出错误信息
-                return $this->badRequest('修改失败！'.$result);
-            }
-            $id = $params['id'];
-            unset($params['id']);
-            $res = $this->roleApi->updateData($id, $params);
+            $res = $this->accountRoleService->updateAccountRole($id, $params['role']);
             if ($res) {
                 return $this->success('修改成功！');
             }

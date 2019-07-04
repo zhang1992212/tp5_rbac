@@ -11,18 +11,16 @@ use think\Request;
 class Role extends Base
 {
     private const VALIDATE = 'geek1992\tp5_rbac\validate\RoleValidate';
-    private $roleApi;
+    private $roleService;
 
     public function __construct()
     {
         parent::__construct();
-        $this->roleApi = new RoleApiService();
+        $this->roleService = new RoleApiService();
     }
 
     public function index()
     {
-//        $list = $this->roleApi->getList();
-//        $this->assign('list', $list);
         return $this->myFetch('role/index');
     }
 
@@ -30,14 +28,12 @@ class Role extends Base
     {
         $start = $request->post('start');
         $length = $request->post('length', '10', 'int');
-        $limit = (-1 === (int)$length) ? '' : "{$start},{$length}";
-        $list = $this->roleApi->getList([], $limit);
-        $total = $this->roleApi->getCount();
+        $list = $this->roleService->getList([], null, $start, $length);
         $data = [
             'draw' => $request->post('draw'),
-            'recordsTotal' => $total,
-            'recordsFiltered' => $total,
-            'data' => $list,
+            'recordsTotal' => $list['total'],
+            'recordsFiltered' => $list['total'],
+            'data' => $list['data'],
         ];
 
         return $data;
@@ -60,14 +56,14 @@ class Role extends Base
                 return $this->badRequest('修改失败！'.$result);
             }
             unset($params['id']);
-            $id = $this->roleApi->insertData($params);
+            $id = $this->roleService->insertData($params);
             if ($id) {
                 return $this->success('添加成功');
             }
 
             return $this->error('添加失败');
         }
-        $menu = $this->roleMenuHtml(-1);
+        $menu = $this->roleMenuHtml();
         $this->assign('menu', $menu);
         $this->noNavLayout();
         $this->assign('type', 'add');
@@ -93,7 +89,7 @@ class Role extends Base
             }
             $id = $params['id'];
             unset($params['id']);
-            $res = $this->roleApi->updateData($id, $params);
+            $res = $this->roleService->updateData($id, $params);
             if ($res) {
                 return $this->success('修改成功！');
             }
@@ -104,7 +100,7 @@ class Role extends Base
         if (-1 === $id) {
             return $this->badRequest('错误的ID');
         }
-        $list = $this->roleApi->getInfo($id);
+        $list = $this->roleService->getInfo($id, null, ['id', 'name']);
         $menu = $this->roleMenuHtml($id);
         $this->assign('menu', $menu);
         $this->noNavLayout();
@@ -125,7 +121,7 @@ class Role extends Base
         if (-1 === $id) {
             return $this->errorMsg('删除失败！错误的ID', 400);
         }
-        $res = $this->roleApi->delData($id);
+        $res = $this->roleService->delData($id);
         if ($res) {
             return $this->success('删除成功！');
         }
@@ -146,7 +142,7 @@ class Role extends Base
         if (-1 === $id) {
             return $this->badRequest('错误的ID');
         }
-        $list = $this->roleApi->getInfo($id);
+        $list = $this->roleService->getInfo($id);
         $this->assign('role_info', $list);
         $this->assign('action', 'view');
         $menu = $this->roleMenuHtml($id);
@@ -163,10 +159,10 @@ class Role extends Base
      *
      * @return mixed
      */
-    protected function roleMenuHtml($id)
+    protected function roleMenuHtml(int $id = 0)
     {
         $this->noLayOut();
-        $menu_list = $this->roleApi->getRoleMenuList($id);
+        $menu_list = $this->roleService->getRoleMenuList($id);
         $this->assign('menu_info', $menu_list);
         $menu = $this->myFetch('role/role_list');
 

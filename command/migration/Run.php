@@ -8,7 +8,14 @@ use think\console\input\Option as InputOption;
 use think\console\Output;
 use think\migration\command\Migrate;
 
-class Run extends Migrate {
+class Run extends RbacMigrate {
+
+    public function __construct($name = null)
+    {
+
+        parent::__construct($name);
+    }
+
     /**
      * {@inheritdoc}
      */
