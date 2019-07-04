@@ -19,78 +19,54 @@ class MenuApiService
     public function insertData($data)
     {
         if ($data['parent_id'] > 0) {
-            $parentInfo = $this->menuModel->getOneInfo(['id' => $data['parent_id']], 'level');
+            $parentInfo = $this->menuModel->getById((int)$data['parent_id'], null, ['level']);
             $data['level'] = $parentInfo['level'] + 1;
         }
         $data['type'] = 1;
+
         return $this->menuModel->insertData($data);
     }
 
     public function getParentList()
     {
         $where['level'] = 1;
+        $where['id'] = ['!=', 1];
         $lists = [['id' => -2, 'name' => '请选择'], ['id' => -1, 'name' => '添加主菜单']];
-        $list = $this->menuModel->getList($where, '', 'order desc', 'id,name,parent_id,level');
-        $list = $this->buildTreeList($list);
+        $list = $this->menuModel->searchAll($where, ['order' => 'desc'], ['id', 'name', 'parent_id', 'level']);
+        $list = $this->buildTreeList($list['data']);
 
         return array_merge($lists, $list);
     }
 
     public function getParentInfo($id)
     {
-        $info = $this->menuModel->getOneInfo(['id' => $id], 'id,name,parent_id,level');
+        $info = $this->menuModel->getById($id, null, ['id', 'name', 'parent_id', 'level']);
 
         return $info;
     }
 
     public function getOneMenuInfo($id)
     {
-        $info = $this->menuModel->getOneInfo(['id' => $id]);
+        $info = $this->menuModel->getById($id);
 
         return $info;
     }
 
     public function getTreeList()
     {
-        $list = $this->menuModel->getList([], '', 'order desc');
-        $list = $this->buildTreeList($list);
+        $list = $this->menuModel->searchAll([], ['order' => 'desc']);
+        $list = $this->buildTreeList($list['data']);
 
         return $list;
     }
 
     public function getChildList($is_super = 1, $menu_id = [])
     {
-        $list = $this->menuModel->getList([], '', 'order desc');
-        $list = $this->buildChildTreeList($list, 0, $is_super, $menu_id);
+        $list = $this->menuModel->searchAll([], ['order' => 'desc']);
+        $list = $this->buildChildTreeList($list['data'], 0, $is_super, $menu_id);
 
         return $list;
     }
-    private function buildChildTreeList($list, $pid = 0, $is_super=1, $menu_id = [])
-    {
-        if (1 === \count($list)) {
-            return $list;
-        }
-        $tree = [];
-        foreach ($list as $item) {
-            $item['checked'] = 0;
-            if ($is_super === 1 || in_array($item['id'], $menu_id)) {
-                $item['checked'] = 1;
-            }
-            $item['str'] = '';
-            if ($item['parent_id'] === $pid) {
-                if (2 === $item['level']) {
-                    $item['str'] = '┣ ━ ';
-                } elseif (3 === $item['level']) {
-                    $item['str'] = '┣ ━━━ ';
-                }
-                $item['child'] = $this->buildChildTreeList($list, $item['id'], $is_super, $menu_id);
-                array_push($tree, $item);
-            }
-        }
-
-        return $tree;
-    }
-
 
     public function delData($id)
     {
@@ -107,6 +83,33 @@ class MenuApiService
         $res = $this->menuModel->updateData($where, $data);
 
         return $res;
+    }
+
+    private function buildChildTreeList($list, $pid = 0, $is_super = 1, $menu_id = [])
+    {
+        if (1 === \count($list)) {
+            return $list;
+        }
+
+        $tree = [];
+        foreach ($list as $item) {
+            $item['checked'] = 0;
+            if (1 === $is_super || \in_array((int)$item['id'], $menu_id, true)) {
+                $item['checked'] = 1;
+            }
+            $item['str'] = '';
+            if ($item['parent_id'] === $pid) {
+                if (2 === $item['level']) {
+                    $item['str'] = '┣ ━ ';
+                } elseif (3 === $item['level']) {
+                    $item['str'] = '┣ ━━━ ';
+                }
+                $item['child'] = $this->buildChildTreeList($list, $item['id'], $is_super, $menu_id);
+                array_push($tree, $item);
+            }
+        }
+
+        return $tree;
     }
 
     private function buildTreeList($list, $pid = 0)

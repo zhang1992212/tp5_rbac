@@ -15,6 +15,7 @@ class AccountSeeder extends Seeder
     public function run()
     {
         $data = [
+            'id' => 1,
             'account' => 'admin',
             'password' => md5(111111),
             'name' => 'admin',

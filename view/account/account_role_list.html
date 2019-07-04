@@ -1,16 +1,21 @@
 <?php $action= $action??""; ?>
 <div class="row cl">
-    <label class="form-label col-xs-4 col-sm-3">角色列表：</label>
-    <div class="formControls col-xs-8 col-sm-9">
-        {volist name='info' id='vo'}
+    <!--<label class="form-label col-xs-4 col-sm-3">角色列表：</label>-->
+    <div class="formControls col-xs-12 col-sm-12">
+
         <dl class="permission-list" style="margin-bottom: 5px;border-bottom: 1px solid #000">
             <dt>
-                <label>
-                    <input type="checkbox" {if condition="$action eq 'view'"}disabled {/if} {if condition="$vo.checked eq 1"}checked{/if} value="{$vo.id}" name="menu[]" id="user-Character-0">
-                    {$vo.name}</label>
+                <label>角色列表</label>
             </dt>
+            <dd class="row cl">
+                {volist name='info' id='vo'}
+                <label class="col-xs-4">
+                    <input type="checkbox" {if condition="$action eq 'view'"}disabled {/if} {if condition="$vo.checked eq 1"}checked{/if} value="{$vo.id}" name="role[]" id="user-Character-0">
+                    {$vo.name}</label>
+                {/volist}
+            </dd>
         </dl>
-        {/volist}
+
 
     </div>
 </div>

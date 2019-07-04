@@ -5,10 +5,59 @@
 
 namespace geek1992\tp5_rbac\traits;
 
+use geek1992\tp5_rbac\model\RoleMenu;
 use think\Request;
+use function tp5auth\auth\controller\menu;
 
 trait Menu
 {
+    private $menu_fields = ['id', 'name', 'icon', 'module', 'controller', 'action', 'type', 'level', 'order', 'parent_id'];
+
+    /**
+     * 系统管理员菜单.
+     *
+     * @param $isSystemMenu 是否是系统菜单 1是 0否
+     *
+     * @return string 生成好的html代码
+     */
+    protected function getSupperMenu($isSystemMenu)
+    {
+        $menuModel = new \geek1992\tp5_rbac\model\Menu();
+        $menu_list = $menuModel->searchAll([], ['order' => 'desc'], $this->menu_fields);
+        $menu_tree = $this->menuTreeList($menu_list['data'], 0, $isSystemMenu);
+        unset($menu_tree['selected'], $menuModel);
+
+        $menu_tree_html = $this->buildMenuTree($menu_tree, $isSystemMenu);
+
+        return $menu_tree_html;
+    }
+
+    /**
+     * 根据角色id获取菜单.
+     *
+     * @param $isSystemMenu
+     * @param $role_id
+     *
+     * @return string
+     */
+    protected function getCommonMenu($isSystemMenu, $role_id)
+    {
+        $roleMenuModel = new RoleMenu();
+        $menuModel = new \geek1992\tp5_rbac\model\Menu();
+        $roleMenu = $roleMenuModel->searchAll(['role_id' => ['in', $role_id]], null, ['menu_id', 'role_id']);
+        if (empty($roleMenuArr = $roleMenu['data'])) {
+            return '';
+        }
+        $menuId = array_unique(array_column($roleMenuArr, 'menu_id'));
+        $menu_list = $menuModel->searchAll(['id' => ['in', $menuId]], ['order' => 'desc'], $this->menu_fields);
+        $menu_tree = $this->menuTreeList($menu_list['data'], 0, $isSystemMenu);
+        unset($menu_tree['selected'], $menuModel, $roleMenuModel);
+
+        $menu_tree_html = $this->buildMenuTree($menu_tree, $isSystemMenu);
+
+        return $menu_tree_html;
+    }
+
     private function buildMenuTree($list, $isSystemMenu)
     {
         $html = '';
@@ -100,7 +149,7 @@ trait Menu
                 }
 
                 if (0 === $item['type']) { //系统菜单
-                    $tmp['url'] = url('index/index/'.$item['controller'], ['method' => $item['action']]);
+                    $tmp['url'] = url('index/'.$item['controller'], ['method' => $item['action']]);
                 } else {
                     $tmp['url'] = url($item['module'].'/'.$item['controller'].'/'.$item['action']);
                 }
@@ -119,18 +168,5 @@ trait Menu
         }
 
         return $tree;
-    }
-
-
-    protected function getSupperMenu($isSystemMenu)
-    {
-        $menuModel = new \geek1992\tp5_rbac\model\Menu();
-        $menu_list = $menuModel->getList([], '', 'order desc');
-        $menu_tree = $this->menuTreeList($menu_list, 0, $isSystemMenu);
-        unset($menu_tree['selected']);
-
-        $menu_tree_html = $this->buildMenuTree($menu_tree, $isSystemMenu);
-
-        return $menu_tree_html;
     }
 }

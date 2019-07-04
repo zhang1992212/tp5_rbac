@@ -30,16 +30,8 @@ class RoleMenuApiService
     public function getListById($id)
     {
         $where['role_id'] = $id;
-        $list = $this->roleMenuModel->getList($where);
-
-        return $list;
-    }
-
-    public function getInfo($id)
-    {
-        $list = $this->roleMenuModel->getOneInfo(['id' => $id]);
-
-        return $list;
+        $list = $this->roleMenuModel->searchAll($where);
+        return $list['data'];
     }
 
     public function delData($id)

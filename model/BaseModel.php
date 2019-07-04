@@ -14,61 +14,6 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
 {
     protected $connection = 'database';
 
-    public function getList($where = [], $limit = '', $order = '', $field = '*')
-    {
-        $list = [];
-        $build = $this->deleted();
-        if (!empty($limit)) {
-            $build = $build->limit($limit);
-        }
-        if (!empty($where)) {
-            $build = $build->where($where);
-        }
-        if (!empty($field)) {
-            $build = $build->field($field);
-        }
-        if (!empty($order)) {
-            $build = $build->order($order);
-        }
-        $res = $build->select();
-
-        if (!empty($res)) {
-            $list = $this->objectToArray($res);
-        }
-
-        return $list;
-    }
-
-    public function getCount($where = [])
-    {
-        $build = $this->deleted();
-
-        if (!empty($where)) {
-            $build = $build->where($where);
-        }
-        $res = $build->count();
-
-        return empty($res) ? 0 : $res;
-    }
-
-    public function getTotal($where)
-    {
-        $total = $this->where($where)->count();
-
-        return empty($total) ? 0 : $total;
-    }
-
-    public function getOneInfo($where, $field = '*')
-    {
-        $list = [];
-        $res = $this->deleted()->field($field)->where($where)->find();
-        if (!empty($res)) {
-            $list = $res->toArray();
-        }
-
-        return $list;
-    }
-
     public function insertData($data)
     {
         $res = $this->insertGetId($data);
@@ -121,9 +66,11 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
 
     public function getByCondition(array $condition = [], ?array $order = null, ?array $fields = null): array
     {
-        $info = $this->deleted()->where($condition)->order($order)->find();
-
-        return$info->toArray();
+        $info = $this->deleted()->where($condition)->field($fields)->order($order)->find();
+        if (empty($info)) {
+            return [];
+        }
+        return $info->toArray();
     }
 
     public function updateDataById(int $id, array $data)

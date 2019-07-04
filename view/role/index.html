@@ -115,7 +115,7 @@
                 "render": function ( data, type, row ) {
                     let res;
                     res = "<a href=\"javascript:;\" onclick=\"common_view('查看权限','role_view?id=" + row.id + "','900','500')\" class=\"btn btn-secondary radius\">查看权限</a>";
-                    if (row.type == 0) {
+                    if (row.type == 1) {
                         <!--删除-->
                         res += "&nbsp;&nbsp;<a href=\"javascript:;\" onclick=\"common_edit('编辑','role_edit?id=" + row.id + "','800','500')\" class=\"btn btn-warning radius\">编辑</a>";
                         <!--删除-->

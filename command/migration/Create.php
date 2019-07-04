@@ -15,7 +15,7 @@ use think\console\Input;
 use think\console\Output;
 use think\migration\command\Migrate;
 
-class Create extends Migrate
+class Create extends RbacMigrate
 {
 
     /**
