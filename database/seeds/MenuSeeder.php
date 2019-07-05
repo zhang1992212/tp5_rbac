@@ -37,12 +37,12 @@ class MenuSeeder extends Seeder
                 'id' => 3,
                 'name' => '用户管理',
                 'module' => 'index',
-                'controller' => 'account',
+                'controller' => 'administrator',
                 'action' => 'index',
                 'level' => 2,
                 'type' => 0,
                 'order' => 0,
-                'parent_id' => 2
+                'parent_id' => 2,
             ],
             [
                 'id' => 4,
@@ -53,7 +53,7 @@ class MenuSeeder extends Seeder
                 'level' => 2,
                 'type' => 0,
                 'order' => 0,
-                'parent_id' => 2
+                'parent_id' => 2,
             ],
             [
                 'id' => 5,
@@ -64,9 +64,28 @@ class MenuSeeder extends Seeder
                 'level' => 2,
                 'type' => 0,
                 'order' => 0,
-                'parent_id' => 2
+                'parent_id' => 2,
             ],
-
+            [
+                'id' => 6,
+                'name' => '日志管理',
+                'module' => '',
+                'controller' => '',
+                'action' => '',
+                'type' => 0,
+                'order' => 0,
+            ],
+            [
+                'id' => 7,
+                'name' => '操作日志管理',
+                'module' => 'index',
+                'controller' => 'administratorLog',
+                'action' => 'index',
+                'level' => 2,
+                'type' => 0,
+                'order' => 0,
+                'parent_id' => 6,
+            ],
         ];
         $this->table('admin_menu')->insert($data)->save();
     }

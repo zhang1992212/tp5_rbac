@@ -35,7 +35,7 @@ class Login extends Base
             $info = $this->LoginApiService->checkLogin($request->param('account'), $request->param('password'));
             if (empty($info)) {
                 return $this->error('登录失败，用户名或密码错误');
-            } elseif (!empty($info) && 0 === (int)$info['is_active']) {
+            } elseif (!empty($info) && 0 === (int) $info['is_active']) {
                 return $this->error('登录失败，该账户未激活');
             }
             //将用户信息记录到session中

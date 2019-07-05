@@ -9,6 +9,4 @@ class RoleMenu extends BaseModel
 {
     protected $connection = 'database';
     protected $name = 'admin_role_menu';
-
-
 }

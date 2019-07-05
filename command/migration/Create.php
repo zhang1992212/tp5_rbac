@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | TopThink [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
@@ -10,14 +11,12 @@
 namespace geek1992\tp5_rbac\command\migration;
 
 use Phinx\Util\Util;
-use think\console\input\Argument as InputArgument;
 use think\console\Input;
+use think\console\input\Argument as InputArgument;
 use think\console\Output;
-use think\migration\command\Migrate;
 
 class Create extends RbacMigrate
 {
-
     /**
      * {@inheritdoc}
      */
@@ -34,8 +33,10 @@ class Create extends RbacMigrate
      *
      * @param Input  $input
      * @param Output $output
+     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     *
      * @return void
      */
     protected function execute(Input $input, Output $output)
@@ -50,7 +51,7 @@ class Create extends RbacMigrate
 
         $this->verifyMigrationDirectory($path);
 
-        $path      = realpath($path);
+        $path = realpath($path);
         $className = $input->getArgument('name');
 
         if (!Util::isValidPhinxClassName($className)) {
@@ -63,7 +64,7 @@ class Create extends RbacMigrate
 
         // Compute the file path
         $fileName = Util::mapClassNameToFileName($className);
-        $filePath = $path . DS . $fileName;
+        $filePath = $path.DS.$fileName;
 
         if (is_file($filePath)) {
             throw new \InvalidArgumentException(sprintf('The file "%s" already exists', $filePath));
@@ -84,17 +85,16 @@ class Create extends RbacMigrate
             throw new \RuntimeException(sprintf('The file "%s" could not be written to', $path));
         }
 
-        $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', $filePath));
+        $output->writeln('<info>created</info> .'.str_replace(getcwd(), '', $filePath));
     }
 
     protected function getTemplate()
     {
-        return __DIR__ . DS.'../stubs/migrate.stub';
+        return __DIR__.DS.'../stubs/migrate.stub';
     }
 
     protected function getPath()
     {
         return __DIR__.DS.'..'.DS.'..'.DS.'database'.DS.'migrations';
     }
-
 }

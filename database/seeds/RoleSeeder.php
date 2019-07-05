@@ -24,7 +24,7 @@ class RoleSeeder extends Seeder
                 'id' => 2,
                 'name' => '系统管理员',
                 'type' => 0,
-            ]
+            ],
         ];
         $this->table('admin_role')->insert($data)->save();
     }

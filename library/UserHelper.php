@@ -1,8 +1,9 @@
 <?php
 
-
 namespace geek1992\tp5_rbac\library;
 
+use geek1992\tp5_rbac\model\Administrator;
+use geek1992\tp5_rbac\model\AdministratorRole;
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
@@ -19,25 +20,25 @@ class UserHelper
     public static function getAdminInfo(int $id)
     {
         $adminInfo = ['role_name' => '', 'is_supper' => 0, 'role_id' => []];
-        $accountModel = new \geek1992\tp5_rbac\model\Account();
+        $administratorModel = new Administrator();
         if (1 === $id) {
             $adminInfo['role_name'] = '超级管理员';
             $adminInfo['is_supper'] = 1;
         } else {
-            $accountRoleModel = new AccountRole();
+            $administratorRoleModel = new AdministratorRole();
             $roleModel = new \geek1992\tp5_rbac\model\Role();
-            $accountRole = $accountRoleModel->searchAll(['account_id' => $id], null, ['role_id']);
-            $role_id = array_column($accountRole['data'], 'role_id');
+            $administratorRole = $administratorRoleModel->searchAll(['admin_id' => $id], null, ['role_id']);
+            $role_id = array_column($administratorRole['data'], 'role_id');
             if (!empty($role_id)) {
                 $role = $roleModel->getById($role_id[0], null, ['name']);
                 $adminInfo['role_name'] = $role['name'];
                 $adminInfo['role_id'] = $role_id;
             }
-            unset($accountRoleModel, $roleModel);
+            unset($administratorRoleModel, $roleModel);
         }
-        $account = $accountModel->getById($id, null, ['id', 'name', 'account']);
-        unset($accountModel);
+        $administrator = $administratorModel->getById($id, null, ['id', 'name', 'account']);
+        unset($administratorModel);
 
-        return array_merge($account, $adminInfo);
+        return array_merge($administrator, $adminInfo);
     }
 }

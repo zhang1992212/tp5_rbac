@@ -1,10 +1,8 @@
 <?php
 
-
 namespace geek1992\tp5_rbac\interfaces;
 
-
-interface FormatterInterface
+interface FormatterInterfaces
 {
     public function getCode(): int;
 

@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | TopThink [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
@@ -17,6 +18,27 @@ use think\migration\command\Seed;
 
 class Run extends Seed
 {
+    public function seed($seed = null)
+    {
+        $seeds = $this->getSeeds();
+
+        if (null === $seed) {
+            // run all seeders
+            foreach ($seeds as $seeder) {
+                if (\array_key_exists($seeder->getName(), $seeds)) {
+                    $this->executeSeed($seeder);
+                }
+            }
+        } else {
+            // run only one seeder
+            if (\array_key_exists($seed, $seeds)) {
+                $this->executeSeed($seeds[$seed]);
+            } else {
+                throw new \InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
+            }
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -25,7 +47,8 @@ class Run extends Seed
         $this->setName('rbac:seed:run')
              ->setDescription('Run database seeders')
              ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED, 'What is the name of the seeder?')
-             ->setHelp(<<<EOT
+             ->setHelp(
+                 <<<'EOT'
                 The <info>seed:run</info> command runs all available or individual seeders
 
 <info>php console seed:run</info>
@@ -41,6 +64,7 @@ EOT
      *
      * @param Input  $input
      * @param Output $output
+     *
      * @return void
      */
     protected function execute(Input $input, Output $output)
@@ -53,34 +77,13 @@ EOT
         $end = microtime(true);
 
         $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
-    }
-
-    public function seed($seed = null)
-    {
-        $seeds = $this->getSeeds();
-
-        if (null === $seed) {
-            // run all seeders
-            foreach ($seeds as $seeder) {
-                if (array_key_exists($seeder->getName(), $seeds)) {
-                    $this->executeSeed($seeder);
-                }
-            }
-        } else {
-            // run only one seeder
-            if (array_key_exists($seed, $seeds)) {
-                $this->executeSeed($seeds[$seed]);
-            } else {
-                throw new \InvalidArgumentException(sprintf('The seed class "%s" does not exist', $seed));
-            }
-        }
+        $output->writeln('<comment>All Done. Took '.sprintf('%.4fs', $end - $start).'</comment>');
     }
 
     protected function executeSeed(SeedInterface $seed)
     {
         $this->output->writeln('');
-        $this->output->writeln(' ==' . ' <info>' . $seed->getName() . ':</info>' . ' <comment>seeding</comment>');
+        $this->output->writeln(' =='.' <info>'.$seed->getName().':</info>'.' <comment>seeding</comment>');
 
         // Execute the seeder and log the time elapsed.
         $start = microtime(true);
@@ -102,7 +105,7 @@ EOT
         }
         $end = microtime(true);
 
-        $this->output->writeln(' ==' . ' <info>' . $seed->getName() . ':</info>' . ' <comment>seeded' . ' ' . sprintf('%.4fs', $end - $start) . '</comment>');
+        $this->output->writeln(' =='.' <info>'.$seed->getName().':</info>'.' <comment>seeded'.' '.sprintf('%.4fs', $end - $start).'</comment>');
     }
 
     protected function getPath()

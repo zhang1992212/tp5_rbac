@@ -6,6 +6,7 @@ use geek1992\tp5_rbac\interfaces\BaseModeInterfaces;
 use think\Exception;
 use think\Log;
 use think\Model;
+use geek1992\tp5_rbac\library\AdministratorLog;
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
@@ -18,6 +19,9 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
     {
         $res = $this->insertGetId($data);
 
+        if ($res && $this->name != 'admin_administrator_log') {
+            AdministratorLog::newLog($res);
+        }
         return $res;
     }
 
@@ -32,7 +36,12 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
     {
         $data['update_time'] = date('Y-m-d H:i:s');
         $res = $this->where($where)->update($data);
-
+        if ($res) {
+            if (array_key_exists('is_active', $data)) {
+                $where['is_active'] = $data['is_active'];
+            }
+            AdministratorLog::newLog(http_build_query($where));
+        }
         return $res;
     }
 
@@ -44,7 +53,7 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
             $list['total'] = $this->deleted()->where($condition)->count();
         } catch (Exception $e) {
             Log::error($e->getTraceAsString());
-            $list = [];
+            $list = ['data' => [], 'total' => 0];
         }
 
         return $list;
@@ -70,13 +79,14 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
         if (empty($info)) {
             return [];
         }
+
         return $info->toArray();
     }
 
     public function updateDataById(int $id, array $data)
     {
         $data['update_time'] = date('Y-m-d H:i:s');
-        $res = $this->where(['id' => $id])->update($data);
+        $res = $this->updateData(['id' => $id], $data);
 
         return $res;
     }

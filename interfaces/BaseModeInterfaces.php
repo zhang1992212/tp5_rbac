@@ -43,10 +43,12 @@ interface BaseModeInterfaces
     public function getByCondition(array $condition = [], ?array $order = null, ?array $fields = null): array;
 
     /**
-     * 通过id获取信息
-     * @param int $id
+     * 通过id获取信息.
+     *
+     * @param int        $id
      * @param array|null $order
      * @param array|null $fields
+     *
      * @return array
      */
     public function getById(int $id, ?array $order = null, ?array $fields = null): array;

@@ -2,40 +2,40 @@
 
 namespace geek1992\tp5_rbac\controller;
 
-use geek1992\tp5_rbac\service\AccountRoleService;
-use geek1992\tp5_rbac\service\AccountService;
+use geek1992\tp5_rbac\service\AdministratorRoleService;
+use geek1992\tp5_rbac\service\AdministratorService;
 use think\Request;
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
  */
-class Account extends Base
+class Administrator extends Base
 {
-    private const VALIDATE = 'geek1992\tp5_rbac\validate\AccountValidate';
-    protected $accountService;
-    protected $accountRoleService;
+    private const VALIDATE = 'geek1992\tp5_rbac\validate\AdministratorValidate';
+    protected $administratorService;
+    protected $administratorRoleService;
 
     public function __construct()
     {
         parent::__construct();
-        $this->accountService = new AccountService();
-        $this->accountRoleService = new AccountRoleService();
+        $this->administratorService = new AdministratorService();
+        $this->administratorRoleService = new AdministratorRoleService();
     }
 
     public function index()
     {
-        $list = $this->accountService->search();
+        $list = $this->administratorService->search();
         $this->assign('list', $list['data'] ?? []);
         $this->assign('total', $list['total'] ?? []);
 
-        return $this->myFetch('account/index');
+        return $this->myFetch('administrator/index');
     }
 
-    public function getAccountList(Request $request)
+    public function getAdministratorList(Request $request)
     {
         $page = $request->post('start', 0, 'int');
         $limit = $request->post('length', 10, 'int');
-        $list = $this->accountService->search([], null, $page, $limit);
+        $list = $this->administratorService->search([], null, $page, $limit);
         $data = [
             'draw' => $request->post('draw'),
             'recordsTotal' => $list['total'] ?? 0,
@@ -46,7 +46,7 @@ class Account extends Base
         return $data;
     }
 
-    public function account_role_edit(Request $request)
+    public function administrator_role_edit(Request $request)
     {
         $id = $request->get('id', -1, 'int');
         if (-1 === $id) {
@@ -54,23 +54,23 @@ class Account extends Base
         }
         if ($request->isPost()) {
             $params = $request->post();
-            $res = $this->accountRoleService->updateAccountRole($id, $params['role']);
+            $res = $this->administratorRoleService->updateAdministratorRole($id, $params['role']);
             if ($res) {
                 return $this->success('修改成功！');
             }
 
             return $this->serverError();
         }
-        $account = $this->accountService->getAccountInfo($id, null, ['name']);
-        $list = $this->account_role_list($id);
+        $administrator = $this->administratorService->getAdministratorInfo($id, null, ['name']);
+        $list = $this->administrator_role_list($id);
         $this->assign('list', $list);
-        $this->assign('account', $account);
+        $this->assign('administrator', $administrator);
         $this->noNavLayout();
 
-        return $this->myFetch('account/account_edit');
+        return $this->myFetch('administrator/administrator_edit');
     }
 
-    public function account_add(Request $request)
+    public function administrator_add(Request $request)
     {
         if ($request->isPost()) {
             $params = $request->post();
@@ -80,7 +80,7 @@ class Account extends Base
                 return $this->badRequest('修改失败！'.$result);
             }
             unset($params['repwd']);
-            $id = $this->accountService->insertData($params);
+            $id = $this->administratorService->insertData($params);
             if ($id) {
                 return $this->success('添加成功');
             }
@@ -89,12 +89,12 @@ class Account extends Base
         }
         $this->noNavLayout();
 
-        return $this->myFetch('account/account_add');
+        return $this->myFetch('administrator/administrator_add');
     }
 
-    public function account_active(Request $request)
+    public function administrator_active(Request $request)
     {
-        $res = $this->accountService->activeAccount($request->post('id'), $request->post('type'));
+        $res = $this->administratorService->activeAdministrator($request->post('id'), $request->post('type'));
         if ($res) {
             return $this->success('修改成功！');
         }
@@ -102,9 +102,9 @@ class Account extends Base
         return $this->serverError();
     }
 
-    public function account_del(Request $request)
+    public function administrator_del(Request $request)
     {
-        $res = $this->accountService->deletedAccount($request->post('id'));
+        $res = $this->administratorService->deletedAdministrator($request->post('id'));
         if ($res) {
             return $this->success('删除成功！');
         }
@@ -112,12 +112,12 @@ class Account extends Base
         return $this->serverError();
     }
 
-    protected function account_role_list($id)
+    protected function administrator_role_list($id)
     {
         $this->noLayOut();
-        $list = $this->accountService->getAccountRoleList($id);
+        $list = $this->administratorService->getAdministratorRoleList($id);
         $this->assign('info', $list);
-        $menu = $this->myFetch('account/account_role_list');
+        $menu = $this->myFetch('administrator/administrator_role_list');
 
         return $menu;
     }

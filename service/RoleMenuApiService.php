@@ -2,7 +2,6 @@
 
 namespace geek1992\tp5_rbac\service;
 
-
 use geek1992\tp5_rbac\model\RoleMenu;
 
 /**
@@ -31,13 +30,14 @@ class RoleMenuApiService
     {
         $where['role_id'] = $id;
         $list = $this->roleMenuModel->searchAll($where);
+
         return $list['data'];
     }
 
     public function delData($id)
     {
         $where['id'] = $id;
-        if (is_array($id)) {
+        if (\is_array($id)) {
             $where['id'] = ['in', $id];
         }
         $data['deleted'] = 1;
@@ -61,5 +61,4 @@ class RoleMenuApiService
 
         return $res;
     }
-
 }
