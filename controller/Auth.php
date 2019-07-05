@@ -11,16 +11,16 @@ use think\Request;
 abstract class Auth extends Base
 {
     private $Router = [
-      'login' => 'geek1992\tp5_rbac\controller\Login',
-      'account' => 'geek1992\tp5_rbac\controller\Account',
-      'welcome' => 'geek1992\tp5_rbac\controller\Welcome',
-      'menu' => 'geek1992\tp5_rbac\controller\Menu',
-      'role' => 'geek1992\tp5_rbac\controller\Role',
+        'login' => 'geek1992\tp5_rbac\controller\Login',
+        'administrator' => 'geek1992\tp5_rbac\controller\Administrator',
+        'welcome' => 'geek1992\tp5_rbac\controller\Welcome',
+        'menu' => 'geek1992\tp5_rbac\controller\Menu',
+        'role' => 'geek1992\tp5_rbac\controller\Role',
+        'administratorlog' => 'geek1992\tp5_rbac\controller\AdministratorLog',
     ];
 
     public function _empty($name)
     {
-
         $method = Request::instance()->param('method', 'login');
 
         $controller = $this->Router[$name] ?? $this->Router['login'];
@@ -28,6 +28,7 @@ abstract class Auth extends Base
             if (isset($this->Router[$name]) && 'Index' === Request::instance()->controller()) {
                 Request::instance()->isSystemMenu = '1';
             }
+
             return \call_user_func([new $controller(), $method], Request::instance());
 //            try {
 //                return \call_user_func([new $controller(), $method], Request::instance());
@@ -35,7 +36,7 @@ abstract class Auth extends Base
 //                return $this->errorMsg('服务器内部错误',500);
 //            }
         }
+
         return $this->NotFound();
     }
 }
-

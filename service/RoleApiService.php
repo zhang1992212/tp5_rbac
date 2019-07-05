@@ -40,8 +40,7 @@ class RoleApiService
         return $list;
     }
 
-
-    public function getInfo(int $id, ?array $orders=null, ?array $fields=null)
+    public function getInfo(int $id, ?array $orders = null, ?array $fields = null)
     {
         $list = $this->roleModel->getById($id, $orders, $fields);
 

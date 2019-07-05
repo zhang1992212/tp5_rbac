@@ -1,8 +1,6 @@
 <?php
 
-
 namespace geek1992\tp5_rbac\controller;
-
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
@@ -10,7 +8,7 @@ namespace geek1992\tp5_rbac\controller;
 class Welcome extends Base
 {
     /**
-     * 首页
+     * 首页.
      *
      * @return mixed
      */

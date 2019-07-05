@@ -3,7 +3,8 @@
 namespace geek1992\tp5_rbac\controller;
 
 use geek1992\tp5_rbac\library\Formatter;
-use geek1992\tp5_rbac\model\AccountRole;
+use geek1992\tp5_rbac\model\Administrator;
+use geek1992\tp5_rbac\model\AdministratorRole;
 use think\Config;
 use think\Controller;
 use think\exception\HttpResponseException;
@@ -26,6 +27,8 @@ class Base extends Controller
         'login',
     ];
 
+    protected $uniqueId;
+
     public function __construct()
     {
         parent::__construct();
@@ -38,13 +41,13 @@ class Base extends Controller
         if (null === session('userInfo') && !\in_array($request->action(), static::NO_AUTH_LOGIN_ACTION, true)) {
             return $this->redirect(url('login', ['method' => 'login']));
         }
-        if (!(null === session('userInfo') && $request->action() === 'login')) {
-            $isSystemMenu = $request->isSystemMenu ?? '0';
-
+        $isSystemMenu = $request->isSystemMenu ?? '0';
+        if (!(null === session('userInfo') && 'login' === $request->action())) {
             // 获取所有菜单信息
             $admin_info = session('userInfo');
+            Request::instance()->admin = $admin_info;
             //超级管理员 、系统管理员 拥有全部菜单权限
-            if (1 === $admin_info['is_supper'] || in_array(2, $admin_info['role_id'])) {
+            if (1 === $admin_info['is_supper'] || \in_array(2, $admin_info['role_id'], true)) {
                 $menu_list = $this->getSupperMenu($isSystemMenu);
             } else {
                 $menu_list = $this->getCommonMenu($isSystemMenu, $admin_info['role_id']);
@@ -52,14 +55,13 @@ class Base extends Controller
             $this->assign('admin_info', $admin_info);
             $this->assign('menu_list_tree', $menu_list);
         }
+        $this->getUniqueId($isSystemMenu);
     }
 
     public function myFetch($name = '', $vars = [], $replace = [], $config = [])
     {
         return parent::fetch(VIEW_PATH.$name.'.'.Config::get('url_html_suffix'), $vars = [], $replace = ['__ADMIN_STATIC__' => STATIC_PATH], $config = []);
     }
-
-
 
     /**
      * 没有导航的布局文件.
@@ -95,6 +97,50 @@ class Base extends Controller
         return $this->myFetch('blocks/error');
     }
 
+    /**
+     * 通过id 获取账户信息.
+     *
+     * @param int $id
+     *
+     * @return array
+     */
+    public function getAdminInfo(int $id)
+    {
+        $adminInfo = ['role_name' => '', 'is_supper' => 0, 'role_id' => []];
+        $administratorModel = new Administrator();
+        if (1 === $id) {
+            $adminInfo['role_name'] = '超级管理员';
+            $adminInfo['is_supper'] = 1;
+        } else {
+            $administratorRoleModel = new AdministratorRole();
+            $roleModel = new \geek1992\tp5_rbac\model\Role();
+            $administratorRole = $administratorRoleModel->searchAll(['admin_id' => $id], null, ['role_id']);
+            $role_id = array_column($administratorRole['data'], 'role_id');
+            if (!empty($role_id)) {
+                $role = $roleModel->getById($role_id[0], null, ['name']);
+                $adminInfo['role_name'] = $role['name'];
+                $adminInfo['role_id'] = $role_id;
+            }
+            unset($administratorRoleModel, $roleModel);
+        }
+        $administrator = $administratorModel->getById($id, null, ['id', 'name', 'account']);
+        unset($administratorModel);
+
+        return array_merge($administrator, $adminInfo);
+    }
+
+    protected function getUniqueId(int $isSystemMenu = 0)
+    {
+        $request = Request::instance();
+        if (0 === $isSystemMenu) {
+            $uniqueId = $request->module().'/'.$request->controller().'/'.$request->action();
+        } else {
+            $uniqueId = $request->module().'/'.$request->action().'/'.$request->param('method');
+        }
+        Request::instance()->uniqueId = $uniqueId;
+        $this->uniqueId = $uniqueId;
+    }
+
     protected function errorMsg($msg = '', $code = 200, $data = '', $url = null, $wait = 3, array $header = [])
     {
         if (null === $url) {
@@ -127,37 +173,5 @@ class Base extends Controller
     protected function getFormatter(): Formatter
     {
         return Formatter::newInstance();
-    }
-
-    /**
-     * 通过id 获取账户信息.
-     *
-     * @param int $id
-     *
-     * @return array
-     */
-    public function getAdminInfo(int $id)
-    {
-        $adminInfo = ['role_name' => '', 'is_supper' => 0, 'role_id' => []];
-        $accountModel = new \geek1992\tp5_rbac\model\Account();
-        if (1 === $id) {
-            $adminInfo['role_name'] = '超级管理员';
-            $adminInfo['is_supper'] = 1;
-        } else {
-            $accountRoleModel = new AccountRole();
-            $roleModel = new \geek1992\tp5_rbac\model\Role();
-            $accountRole = $accountRoleModel->searchAll(['account_id' => $id], null, ['role_id']);
-            $role_id = array_column($accountRole['data'], 'role_id');
-            if (!empty($role_id)) {
-                $role = $roleModel->getById($role_id[0], null, ['name']);
-                $adminInfo['role_name'] = $role['name'];
-                $adminInfo['role_id'] = $role_id;
-            }
-            unset($accountRoleModel, $roleModel);
-        }
-        $account = $accountModel->getById($id, null, ['id', 'name', 'account']);
-        unset($accountModel);
-
-        return array_merge($account, $adminInfo);
     }
 }
