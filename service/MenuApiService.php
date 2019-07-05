@@ -19,23 +19,12 @@ class MenuApiService
     public function insertData($data)
     {
         if ($data['parent_id'] > 0) {
-            $parentInfo = $this->menuModel->getById((int)$data['parent_id'], null, ['level']);
+            $parentInfo = $this->menuModel->getById((int) $data['parent_id'], null, ['level']);
             $data['level'] = $parentInfo['level'] + 1;
         }
         $data['type'] = 1;
 
         return $this->menuModel->insertData($data);
-    }
-
-    public function getParentList()
-    {
-        $where['level'] = 1;
-        $where['id'] = ['!=', 1];
-        $lists = [['id' => -2, 'name' => '请选择'], ['id' => -1, 'name' => '添加主菜单']];
-        $list = $this->menuModel->searchAll($where, ['order' => 'desc'], ['id', 'name', 'parent_id', 'level']);
-        $list = $this->buildTreeList($list['data']);
-
-        return array_merge($lists, $list);
     }
 
     public function getParentInfo($id)
@@ -94,7 +83,7 @@ class MenuApiService
         $tree = [];
         foreach ($list as $item) {
             $item['checked'] = 0;
-            if (1 === $is_super || \in_array((int)$item['id'], $menu_id, true)) {
+            if (1 === $is_super || \in_array((int) $item['id'], $menu_id, true)) {
                 $item['checked'] = 1;
             }
             $item['str'] = '';

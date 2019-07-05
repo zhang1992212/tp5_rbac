@@ -1,7 +1,6 @@
 <?php
 
 use think\migration\Migrator;
-use think\migration\db\Column;
 
 class CreateRoleMenuTable extends Migrator
 {
@@ -29,9 +28,9 @@ class CreateRoleMenuTable extends Migrator
     public function up()
     {
         $table = $this->table('admin_role_menu');
-        $table->addColumn('role_id', 'integer',array('limit' => 10,'default'=>0,'comment'=>'角色ID'))
-            ->addColumn('menu_id', 'integer',array('limit' => 10,'default'=>0,'comment'=>'菜单ID'))
-            ->addColumn('deleted', 'integer',array('limit' => 2,'default'=>0,'comment'=>'是否删除'))
+        $table->addColumn('role_id', 'integer', ['limit' => 10, 'default' => 0, 'comment' => '角色ID'])
+            ->addColumn('menu_id', 'integer', ['limit' => 10, 'default' => 0, 'comment' => '菜单ID'])
+            ->addColumn('deleted', 'integer', ['limit' => 2, 'default' => 0, 'comment' => '是否删除'])
             ->addTimestamps()   //默认生成create_time和update_time两个字段
             ->create();
     }

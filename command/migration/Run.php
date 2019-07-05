@@ -8,12 +8,27 @@ use think\console\input\Option as InputOption;
 use think\console\Output;
 use think\migration\command\Migrate;
 
-class Run extends RbacMigrate {
-
+class Run extends RbacMigrate
+{
     public function __construct($name = null)
     {
-
         parent::__construct($name);
+    }
+
+    public function migrateToDateTime(\DateTime $dateTime)
+    {
+        $versions = array_keys($this->getMigrations());
+        $dateString = $dateTime->format('YmdHis');
+
+        $outstandingMigrations = array_filter($versions, function ($version) use ($dateString) {
+            return $version <= $dateString;
+        });
+
+        if (\count($outstandingMigrations) > 0) {
+            $migration = max($outstandingMigrations);
+            $this->output->writeln('Migrating to version '.$migration);
+            $this->migrate($migration);
+        }
     }
 
     /**
@@ -25,7 +40,8 @@ class Run extends RbacMigrate {
             ->setDescription('Migrate RBAC the database')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to migrate to')
             ->addOption('--date', '-d', InputOption::VALUE_REQUIRED, 'The date to migrate to')
-            ->setHelp(<<<EOT
+            ->setHelp(
+                <<<'EOT'
 The <info>migrate:run</info> command runs all available migrations, optionally up to a specific version
 
 <info>php console migrate:run</info>
@@ -42,12 +58,13 @@ EOT
      *
      * @param Input  $input
      * @param Output $output
-     * @return integer integer 0 on success, or an error code.
+     *
+     * @return int integer 0 on success, or an error code.
      */
     protected function execute(Input $input, Output $output)
     {
         $version = $input->getOption('target');
-        $date    = $input->getOption('date');
+        $date = $input->getOption('date');
 
         // run the migrations
         $start = microtime(true);
@@ -59,30 +76,14 @@ EOT
         $end = microtime(true);
 
         $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
-    }
-
-    public function migrateToDateTime(\DateTime $dateTime)
-    {
-        $versions   = array_keys($this->getMigrations());
-        $dateString = $dateTime->format('YmdHis');
-
-        $outstandingMigrations = array_filter($versions, function ($version) use ($dateString) {
-            return $version <= $dateString;
-        });
-
-        if (count($outstandingMigrations) > 0) {
-            $migration = max($outstandingMigrations);
-            $this->output->writeln('Migrating to version ' . $migration);
-            $this->migrate($migration);
-        }
+        $output->writeln('<comment>All Done. Took '.sprintf('%.4fs', $end - $start).'</comment>');
     }
 
     protected function migrate($version = null)
     {
         $migrations = $this->getMigrations();
-        $versions   = $this->getVersions();
-        $current    = $this->getCurrentVersion();
+        $versions = $this->getVersions();
+        $current = $this->getCurrentVersion();
 
         if (empty($versions) && empty($migrations)) {
             return;
@@ -91,8 +92,9 @@ EOT
         if (null === $version) {
             $version = max(array_merge($versions, array_keys($migrations)));
         } else {
-            if (0 != $version && !isset($migrations[$version])) {
+            if (0 !== $version && !isset($migrations[$version])) {
                 $this->output->writeln(sprintf('<comment>warning</comment> %s is not a valid version', $version));
+
                 return;
             }
         }
@@ -100,7 +102,7 @@ EOT
         // are we migrating up or down?
         $direction = $version > $current ? MigrationInterface::UP : MigrationInterface::DOWN;
 
-        if ($direction === MigrationInterface::DOWN) {
+        if (MigrationInterface::DOWN === $direction) {
             // run downs first
             krsort($migrations);
             foreach ($migrations as $migration) {
@@ -108,7 +110,7 @@ EOT
                     break;
                 }
 
-                if (in_array($migration->getVersion(), $versions)) {
+                if (\in_array($migration->getVersion(), $versions, true)) {
                     $this->executeMigration($migration, MigrationInterface::DOWN);
                 }
             }
@@ -120,7 +122,7 @@ EOT
                 break;
             }
 
-            if (!in_array($migration->getVersion(), $versions)) {
+            if (!\in_array($migration->getVersion(), $versions, true)) {
                 $this->executeMigration($migration, MigrationInterface::UP);
             }
         }
@@ -129,7 +131,7 @@ EOT
     protected function getCurrentVersion()
     {
         $versions = $this->getVersions();
-        $version  = 0;
+        $version = 0;
 
         if (!empty($versions)) {
             $version = end($versions);
@@ -142,5 +144,4 @@ EOT
     {
         return __DIR__.DS.'..'.DS.'..'.DS.'database'.DS.'migrations';
     }
-
 }

@@ -3,7 +3,6 @@
 namespace geek1992\tp5_rbac\command\migration;
 
 use Phinx\Db\Adapter\AdapterFactory;
-use Phinx\Migration\MigrationInterface;
 use think\migration\command\Migrate;
 
 /**
@@ -11,8 +10,6 @@ use think\migration\command\Migrate;
  */
 class RbacMigrate extends Migrate
 {
-
-
     public function getAdapter()
     {
         if (isset($this->adapter)) {
@@ -20,7 +17,7 @@ class RbacMigrate extends Migrate
         }
 
         $options = $this->getDbConfig();
-        $options['default_migration_table'] = $options['table_prefix'] . 'rbac_migrations';
+        $options['default_migration_table'] = $options['table_prefix'].'rbac_migrations';
 
         $adapter = AdapterFactory::instance()->getAdapter($options['adapter'], $options);
 

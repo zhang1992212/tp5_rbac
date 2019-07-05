@@ -9,6 +9,4 @@ class Role extends BaseModel
 {
     protected $connection = 'database';
     protected $name = 'admin_role';
-
-
 }

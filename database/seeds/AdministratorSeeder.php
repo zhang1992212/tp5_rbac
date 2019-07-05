@@ -2,7 +2,7 @@
 
 use think\migration\Seeder;
 
-class AccountSeeder extends Seeder
+class AdministratorSeeder extends Seeder
 {
     /**
      * Run Method.
@@ -19,8 +19,8 @@ class AccountSeeder extends Seeder
             'account' => 'admin',
             'password' => md5(111111),
             'name' => 'admin',
-            'is_active' => 1
+            'is_active' => 1,
         ];
-        $this->table('admin_account')->insert($data)->save();
+        $this->table('admin_administrator')->insert($data)->save();
     }
 }

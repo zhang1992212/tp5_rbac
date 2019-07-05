@@ -1,6 +1,6 @@
 <div class="cl pd-5 bg-1 bk-gray mt-20">
     <span class="l">
-        <a href="javascript:;" onclick="common_add('添加账号','account_add','800','500')" class="btn btn-primary radius">
+        <a href="javascript:;" onclick="common_add('添加账号','administrator_add','800','500')" class="btn btn-primary radius">
             <i class="Hui-iconfont">&#xe600;</i> 添加账号</a>
     </span>
     <span class="r">共有数据：<strong>{$total}</strong> 条</span>
@@ -32,7 +32,7 @@
         layer.confirm('确认要删除吗？',function(index){
             //此处请求后台程序，下方是成功后的前台处理……
             $.ajax({
-                url:"account_del",    //请求的url地址
+                url:"administrator_del",    //请求的url地址
                 dataType:"json",   //返回格式为json
                 async:true,//请求是否异步，默认为异步，这也是ajax重要特性
                 data:{"id":id},    //参数值
@@ -73,7 +73,7 @@
         layer.confirm('确认'+msg+'吗？' ,function(index){
             //此处请求后台程序，下方是成功后的前台处理……
             $.ajax({
-                url:"account_active",    //请求的url地址
+                url:"administrator_active",    //请求的url地址
                 dataType:"json",   //返回格式为json
                 async:true,//请求是否异步，默认为异步，这也是ajax重要特性
                 data:{"id":id,'type':type},    //参数值
@@ -111,7 +111,7 @@
         "serverSide": true,
         "aLengthMenu": [[10, 25, 50], [10, 25, 50]],
         "ajax": {
-            "url": "getAccountList",
+            "url": "getAdministratorList",
             "type": "POST",
             "dataType" : "json",
             "data": function (d) {
@@ -161,7 +161,7 @@
                         }
                         <!--激活 取消激活-->
                         <!--删除-->
-                        res += "&nbsp;&nbsp;<a href=\"javascript:;\" onclick=\"common_edit('角色管理','account_role_edit?id=" + row.id + "','900','500')\" class=\"btn btn-secondary radius\">角色管理</a>";
+                        res += "&nbsp;&nbsp;<a href=\"javascript:;\" onclick=\"common_edit('角色管理','administrator_role_edit?id=" + row.id + "','900','500')\" class=\"btn btn-secondary radius\">角色管理</a>";
                         // 编辑角色
                         res += "&nbsp;&nbsp;<a href=\"javascript:;\" onclick=\"common_del(this,'" + row.id + "')\" class=\"btn btn-danger radius\">删除</a>";
                     }
