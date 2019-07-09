@@ -3,25 +3,27 @@
 namespace geek1992\tp5_rbac\model;
 
 use geek1992\tp5_rbac\interfaces\BaseModeInterfaces;
+use geek1992\tp5_rbac\library\AdministratorLog;
 use think\Exception;
 use think\Log;
 use think\Model;
-use geek1992\tp5_rbac\library\AdministratorLog;
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
  */
 abstract class BaseModel extends Model implements BaseModeInterfaces
 {
+    protected const NO_WRITE_OPERATE_LOG_MODEL = ['admin_administrator_log', 'admin_login_log'];
     protected $connection = 'database';
 
     public function insertData($data)
     {
         $res = $this->insertGetId($data);
-
-        if ($res && $this->name != 'admin_administrator_log') {
+        $noWriteLogModel = static::NO_WRITE_OPERATE_LOG_MODEL;
+        if ($res && !\in_array($this->name, $noWriteLogModel, true)) {
             AdministratorLog::newLog($res);
         }
+
         return $res;
     }
 
@@ -37,18 +39,19 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
         $data['update_time'] = date('Y-m-d H:i:s');
         $res = $this->where($where)->update($data);
         if ($res) {
-            if (array_key_exists('is_active', $data)) {
+            if (\array_key_exists('is_active', $data)) {
                 $where['is_active'] = $data['is_active'];
             }
             AdministratorLog::newLog(http_build_query($where));
         }
+
         return $res;
     }
 
-    public function search(array $condition = [], ?array $order = null, int $page = 1, int $limit = 10, ?array $fields = null): array
+    public function search(array $condition = [], ?array $order = null, int $start = 1, int $limit = 10, ?array $fields = null): array
     {
         try {
-            $query = $this->deleted()->where($condition)->order($order)->field($fields)->limit($this->pagination($page, $limit));
+            $query = $this->deleted()->where($condition)->order($order)->field($fields)->limit($start, $limit);
             $list['data'] = collection($query->select())->toArray();
             $list['total'] = $this->deleted()->where($condition)->count();
         } catch (Exception $e) {
@@ -101,13 +104,6 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
         $this->where(['deleted' => 0]);
 
         return $this;
-    }
-
-    protected function pagination(int $page = 1, int $limit = 10): string
-    {
-        $start = $page * $limit;
-
-        return "$start,$limit";
     }
 
     private function objectToArray($items)

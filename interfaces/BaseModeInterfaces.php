@@ -12,13 +12,13 @@ interface BaseModeInterfaces
      *
      * @param array      $condition
      * @param array|null $order
-     * @param int        $page
+     * @param int        $start
      * @param int        $limit
      * @param array|null $fields
      *
      * @return array
      */
-    public function search(array $condition = [], ?array $order = null, int $page = 1, int $limit = 10, ?array $fields = null): array;
+    public function search(array $condition = [], ?array $order = null, int $start = 0, int $limit = 10, ?array $fields = null): array;
 
     /**
      * 获取所有数据.

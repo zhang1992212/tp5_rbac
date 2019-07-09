@@ -137,21 +137,15 @@ trait Menu
                 $tmp['name'] = $item['name'];
                 $tmp['icon'] = $item['icon'];
                 $tmp['selected'] = 0;
-                //系统菜单
-                if ('1' === $isSystemMenu && $request->action() === $item['controller'] && $request->param('method') === $item['action']) {
-                    $tmp['selected'] = 1;
-                    $tree['selected'] = 1;
-                }
-                //非系统菜单
-                if ('0' === $isSystemMenu && $request->module() === $item['module'] && $request->controller() === ucfirst($item['controller']) && $request->action() === $item['action']) {
-                    $tmp['selected'] = 1;
-                    $tree['selected'] = 1;
-                }
-
                 if (0 === $item['type']) { //系统菜单
                     $tmp['url'] = url('index/'.$item['controller'], ['method' => $item['action']]);
                 } else {
                     $tmp['url'] = url($item['module'].'/'.$item['controller'].'/'.$item['action']);
+                }
+                //非系统菜单
+                if ((string) $tmp['url'] === $request->url()) {
+                    $tmp['selected'] = 1;
+                    $tree['selected'] = 1;
                 }
                 $tmp['type'] = $item['type'];
                 $tmp['order'] = $item['order'];
