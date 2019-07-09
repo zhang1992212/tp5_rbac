@@ -1,0 +1,60 @@
+<table class="table table-border table-bordered table-bg  table-sort">
+    <thead>
+    <tr>
+        <th scope="col" colspan="200">登录日志管理</th>
+    </tr>
+    <tr class="text-c">
+        <th width="40">ID</th>
+        <th>管理员</th>
+        <th>类型</th>
+        <th width="50">IP</th>
+        <th>操作</th>
+        <th>返回信息</th>
+        <th>客户端类型</th>
+        <th>创建时间</th>
+    </tr>
+    </thead>
+</table>
+<script>
+    table = $('.table-sort').dataTable({
+        "processing": true,
+        "bAutoWidth" : false, //是否自适应宽度 
+        "searching": true,
+        "serverSide": true,
+        "aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "ajax": {
+            "url": "getLoginLogList",
+            "type": "POST",
+            "dataType" : "json",
+            "data": function (d) {
+                //删除多余请求参数
+                for (var key in d) {
+                    if (key.indexOf("columns") == 0 || key.indexOf("order") == 0 || key.indexOf("search") == 0) { //以columns开头的参数删除
+                        delete d[key];
+                    }
+                }
+            }
+
+        },
+        "columns": [
+            {"data": "id"},
+            {"data": "name"},
+            {
+                'data': 'type',
+                "render": function (item) {
+                    if (item == 1) {
+                        return '退出';
+                    }
+                    return '登录';
+                }},
+            {"data": "ip"},
+            {"data": "action"},
+            {"data": "relation"},
+            {"data": "agent"},
+            {"data": "create_time"},
+        ],
+    });
+
+
+
+</script>

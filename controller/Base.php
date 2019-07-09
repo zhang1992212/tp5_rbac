@@ -3,8 +3,10 @@
 namespace geek1992\tp5_rbac\controller;
 
 use geek1992\tp5_rbac\library\Formatter;
+use geek1992\tp5_rbac\library\Redis;
 use geek1992\tp5_rbac\model\Administrator;
 use geek1992\tp5_rbac\model\AdministratorRole;
+use geek1992\tp5_rbac\model\RoleMenu;
 use think\Config;
 use think\Controller;
 use think\exception\HttpResponseException;
@@ -28,9 +30,11 @@ class Base extends Controller
     ];
 
     protected $uniqueId;
+    private $menuBaseModel;
 
     public function __construct()
     {
+        $this->menuBaseModel = new \geek1992\tp5_rbac\model\Menu();
         parent::__construct();
         $this->view->engine->layout(VIEW_PATH.'layout.html');
     }
@@ -42,9 +46,9 @@ class Base extends Controller
             return $this->redirect(url('login', ['method' => 'login']));
         }
         $isSystemMenu = $request->isSystemMenu ?? '0';
-        if (!(null === session('userInfo') && 'login' === $request->action())) {
+        //已登录 则获取菜单 权限信息
+        if (!(null === ($admin_info = session('userInfo')) && 'login' === (string) $request->action())) {
             // 获取所有菜单信息
-            $admin_info = session('userInfo');
             Request::instance()->admin = $admin_info;
             //超级管理员 、系统管理员 拥有全部菜单权限
             if (1 === $admin_info['is_supper'] || \in_array(2, $admin_info['role_id'], true)) {
@@ -54,8 +58,36 @@ class Base extends Controller
             }
             $this->assign('admin_info', $admin_info);
             $this->assign('menu_list_tree', $menu_list);
+            //判断访问权限
+            if (!$this->permission() && 1 !== $admin_info['is_supper'] && !\in_array(2, $admin_info['role_id'], true)) {
+                $redirect = [
+                    'code' => 401,
+                    'msg' => '您无权限访问该页面，请联系管理员给您配置该权限',
+                    'errors' => 'errors'
+                ];
+                if ($request->isAjax()) {
+                    $redirect['msg'] = '您无权限访问该接口，请联系管理员给您配置该权限';
+                }
+                return $this->redirect(url('errors'), [], 302, $redirect);
+            }
         }
+        $this->unsetRedirectSession();
         $this->getUniqueId($isSystemMenu);
+    }
+
+    protected function unsetRedirectSession() {
+        //防止重定向 将传递信息删除
+        if (Request::instance()->action() == 'errors' && session('errors') != null) {
+            $flash = session('__flash__');
+            $flag = ['code', 'msg', 'errors'];
+            if (!empty($flash)) {
+                foreach ($flash as $key => $item) {
+                    if (in_array($item, $flag)) {
+                        session('__flash__'.$key, null);
+                    }
+                }
+            }
+        }
     }
 
     public function myFetch($name = '', $vars = [], $replace = [], $config = [])
@@ -92,8 +124,7 @@ class Base extends Controller
     public function notFound($code = 404, $msg = '')
     {
         $this->assign('code', $code);
-        $this->assign('msg', $msg);
-
+        $this->assign('msg', $msg);;
         return $this->myFetch('blocks/error');
     }
 
@@ -106,22 +137,15 @@ class Base extends Controller
      */
     public function getAdminInfo(int $id)
     {
-        $adminInfo = ['role_name' => '', 'is_supper' => 0, 'role_id' => []];
+        $adminInfo = ['role_name' => '', 'is_supper' => 0, 'role_id' => [], 'menu_id' => []];
         $administratorModel = new Administrator();
         if (1 === $id) {
             $adminInfo['role_name'] = '超级管理员';
             $adminInfo['is_supper'] = 1;
         } else {
-            $administratorRoleModel = new AdministratorRole();
-            $roleModel = new \geek1992\tp5_rbac\model\Role();
-            $administratorRole = $administratorRoleModel->searchAll(['admin_id' => $id], null, ['role_id']);
-            $role_id = array_column($administratorRole['data'], 'role_id');
-            if (!empty($role_id)) {
-                $role = $roleModel->getById($role_id[0], null, ['name']);
-                $adminInfo['role_name'] = $role['name'];
-                $adminInfo['role_id'] = $role_id;
-            }
-            unset($administratorRoleModel, $roleModel);
+            //获取role_id
+            $adminInfo = $this->getRoleIdByAdminId($id, $adminInfo);
+            $adminInfo = $this->getMenuIdByRoleId($adminInfo);
         }
         $administrator = $administratorModel->getById($id, null, ['id', 'name', 'account']);
         unset($administratorModel);
@@ -129,6 +153,96 @@ class Base extends Controller
         return array_merge($administrator, $adminInfo);
     }
 
+    /**
+     * 通过adminId获取roleId信息.
+     *
+     * @param int   $adminId
+     * @param array $adminInfo
+     *
+     * @return array
+     */
+    protected function getRoleIdByAdminId(int $adminId, array $adminInfo): array
+    {
+        $administratorRoleModel = new AdministratorRole();
+        $roleModel = new \geek1992\tp5_rbac\model\Role();
+        $administratorRole = $administratorRoleModel->searchAll(['admin_id' => $adminId], null, ['role_id']);
+        $role_id = array_column($administratorRole['data'], 'role_id');
+        if (!empty($role_id)) {
+            $role = $roleModel->getById($role_id[0], null, ['name']);
+            $adminInfo['role_name'] = $role['name'];
+            $adminInfo['role_id'] = $role_id;
+        }
+        unset($roleModel, $administratorRoleModel);
+
+        return $adminInfo;
+    }
+
+    /**
+     * 通过角色id获取menuid.
+     *
+     * @param array $adminInfo
+     *
+     * @return array
+     */
+    protected function getMenuIdByRoleId(array $adminInfo): array
+    {
+        $roleMenuModel = new RoleMenu();
+        if (!empty($roleId = $adminInfo['role_id'])) {
+            $roleMenu = $roleMenuModel->searchAll(['role_id' => ['in', $roleId]], null, ['menu_id']);
+            $menu_id = array_column($roleMenu['data'], 'menu_id');
+            if (!empty($menu_id)) {
+                $adminInfo['menu_id'] = $menu_id;
+            }
+        }
+
+        return $adminInfo;
+    }
+
+    /**
+     * 根据访问地址判断是否允许访问 true允许 false不允许.
+     *
+     * @param array|null $permission
+     *
+     * @return bool
+     */
+    protected function permission(?array $permission = null)
+    {
+        $isSystemMenu = Request::instance()->isSystemMenu ?? 0;
+        $condition = [
+            'module' => Request::instance()->module(),
+            'controller' => Request::instance()->controller(),
+            'action' => Request::instance()->action(),
+            'type' => 1,
+        ];
+        if (1 === (int) $isSystemMenu) {
+            $condition['module'] = 'index';
+            $condition['controller'] = Request::instance()->action();
+            $condition['action'] = Request::instance()->param('method');
+            $condition['type'] = 0;
+        }
+        $list = $this->menuBaseModel->getByConditionFromCache($condition, null, ['id']);
+        //未在menu配置该接口权限 则允许访问
+        if (empty($list)) {
+            return true;
+        }
+        $admin_info = session('userInfo');
+        if (null === Redis::getRedis()) {//未开启redis 读取session
+            $authIds = $admin_info;
+        } else {
+            $authIds = unserialize(Redis::getRedis()->get(Redis::getKey(['admin_id' => $admin_info['id'], 'admin_auth' => 1])));
+        }
+        if (\in_array($list['id'], $authIds['menu_id'], true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 获取url访问路径.
+     *
+     * @param int $isSystemMenu
+     */
     protected function getUniqueId(int $isSystemMenu = 0)
     {
         $request = Request::instance();

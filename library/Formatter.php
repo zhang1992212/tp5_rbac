@@ -2,13 +2,17 @@
 
 namespace geek1992\tp5_rbac\library;
 
-use geek1992\tp5_rbac\interfaces\FormatterInterface;
+use geek1992\tp5_rbac\interfaces\FormatterInterfaces;
+use think\Response;
+use think\response\Json;
 
 /**
+ * 格式化返回api数据
  * @author: Geek <zhangjinlei01@bilibili.com>
  */
-class Formatter implements FormatterInterface
+class Formatter implements FormatterInterfaces
 {
+
     protected $code = '200';
 
     protected $data = [];
@@ -39,25 +43,16 @@ class Formatter implements FormatterInterface
             return Response::create($this->errors, 'json', $this->errors['code']);
         }
         $result['data'] = $this->data;
-
         return json($result);
     }
 
-    /**
-     * 添加返回数据 返回二维数组.
-     *
-     * @param array $data
-     *
-     * @return Formatter
-     */
     public function addData(array $data = []): self
     {
-        if (\count($data) !== \count($data, 1)) {
+        if (count($data) !== count($data, 1)) {
             $this->data = $data;
         } else {
             $this->data[] = $data;
         }
-
         return $this;
     }
 
@@ -67,19 +62,18 @@ class Formatter implements FormatterInterface
         $this->errors = [
             'code' => $code ?: $status,
             'title' => $title,
-            'detail' => $detail,
+            'detail' => $detail
         ];
-
         return $this;
     }
 
-    public function serverError(string $title, string $detail = '', int $status = 500): self
+    public function serverError(string $title, int $status =500,string $detail = ''): self
     {
-        return $this->setError((int) $status, $title, $detail, (int) $status);
+        return $this->setError((int)$status, $title, $detail, (int)$status);
     }
 
-    public function badRequest(string $title, string $detail = '', int $status = 400): self
+    public function badRequest(string $title,int $status = 400, string $detail = ''): self
     {
-        return $this->setError((int) $status, $title, $detail, (int) $status);
+        return $this->setError((int)$status, $title, $detail, (int)$status);
     }
 }

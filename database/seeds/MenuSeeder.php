@@ -68,7 +68,7 @@ class MenuSeeder extends Seeder
             ],
             [
                 'id' => 6,
-                'name' => '日志管理',
+                'name' => '系统日志管理',
                 'module' => '',
                 'controller' => '',
                 'action' => '',
