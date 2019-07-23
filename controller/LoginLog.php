@@ -35,7 +35,7 @@ class LoginLog extends Base
         if (!empty($list['data'])) {
             foreach ($list['data'] as $key => $item) {
                 $administrator = $this->administratorModel->getById($item['admin_id'], null, ['name']);
-                $list['data'][$key]['name'] = $administrator['name'] . " 【 {$item['admin_id']} 】";
+                $list['data'][$key]['name'] = ($administrator['name']??'') . " 【 {$item['admin_id']} 】";
                 $list['data'][$key]['relation'] = json_decode($item['relation'], true);
             }
         }

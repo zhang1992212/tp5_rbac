@@ -59,35 +59,21 @@ class Base extends Controller
             $this->assign('admin_info', $admin_info);
             $this->assign('menu_list_tree', $menu_list);
             //判断访问权限
-            if (!$this->permission() && 1 !== $admin_info['is_supper'] && !\in_array(2, $admin_info['role_id'], true)) {
+            if (1 !== $admin_info['is_supper'] && !\in_array(2, $admin_info['role_id'], true) && !$this->permission()) {
                 $redirect = [
                     'code' => 401,
                     'msg' => '您无权限访问该页面，请联系管理员给您配置该权限',
-                    'errors' => 'errors'
+                    'errors' => 'errors',
                 ];
                 if ($request->isAjax()) {
                     $redirect['msg'] = '您无权限访问该接口，请联系管理员给您配置该权限';
                 }
+
                 return $this->redirect(url('errors'), [], 302, $redirect);
             }
         }
         $this->unsetRedirectSession();
         $this->getUniqueId($isSystemMenu);
-    }
-
-    protected function unsetRedirectSession() {
-        //防止重定向 将传递信息删除
-        if (Request::instance()->action() == 'errors' && session('errors') != null) {
-            $flash = session('__flash__');
-            $flag = ['code', 'msg', 'errors'];
-            if (!empty($flash)) {
-                foreach ($flash as $key => $item) {
-                    if (in_array($item, $flag)) {
-                        session('__flash__'.$key, null);
-                    }
-                }
-            }
-        }
     }
 
     public function myFetch($name = '', $vars = [], $replace = [], $config = [])
@@ -124,7 +110,8 @@ class Base extends Controller
     public function notFound($code = 404, $msg = '')
     {
         $this->assign('code', $code);
-        $this->assign('msg', $msg);;
+        $this->assign('msg', $msg);
+
         return $this->myFetch('blocks/error');
     }
 
@@ -151,6 +138,22 @@ class Base extends Controller
         unset($administratorModel);
 
         return array_merge($administrator, $adminInfo);
+    }
+
+    protected function unsetRedirectSession()
+    {
+        //防止重定向 将传递信息删除
+        if ('errors' === Request::instance()->action() && null !== session('errors')) {
+            $flash = session('__flash__');
+            $flag = ['code', 'msg', 'errors'];
+            if (!empty($flash)) {
+                foreach ($flash as $key => $item) {
+                    if (\in_array($item, $flag, true)) {
+                        session('__flash__'.$key, null);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -231,7 +234,8 @@ class Base extends Controller
         } else {
             $authIds = unserialize(Redis::getRedis()->get(Redis::getKey(['admin_id' => $admin_info['id'], 'admin_auth' => 1])));
         }
-        if (\in_array($list['id'], $authIds['menu_id'], true)) {
+        //超管  系统管理员  不校验权限
+        if (1 === $admin_info['is_supper'] || \in_array(2, $admin_info['role_id'], true) || \in_array($list['id'], $authIds['menu_id'], true)) {
             return true;
         }
 

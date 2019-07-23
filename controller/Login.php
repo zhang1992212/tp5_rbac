@@ -59,7 +59,7 @@ class Login extends Base
             unset($roleMenuModel);
             if (null === Redis::getRedis()) {//未开启redis 读取session
                 session('authId', $authId);
-            } else {
+            } elseif(!empty($authId)) {
                 Redis::getRedis()->set(Redis::getKey(['admin_id' => $info['id'], 'admin_auth' => 1], serialize($authId)));
             }
 

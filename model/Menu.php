@@ -34,7 +34,7 @@ class Menu extends BaseModel
             } else {
                 $value = $this->getByCondition($condition, $order);
                 if (!empty($value)) {
-                    Redis::getRedis()->set(serialize($value));
+                    Redis::getRedis()->set($key, serialize($value));
                 }
             }
         }

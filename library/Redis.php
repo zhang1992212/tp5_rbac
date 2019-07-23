@@ -9,6 +9,11 @@ class Redis
 {
     private static $instance = null;
 
+    protected static $config = [
+        'host' => '127.0.0.1',
+        'port' => 6379
+    ];
+
     private function __construct()
     {
     }
