@@ -11,7 +11,8 @@ class Redis
 
     protected static $config = [
         'host' => '127.0.0.1',
-        'port' => 6379
+        'port' => 6379,
+        'auth' => 'Zjl1992212!'
     ];
 
     private function __construct()
@@ -49,6 +50,7 @@ class Redis
             $host = static::$config['host'];
             $port = static::$config['port'];
             $redis->connect($host, $port);
+            $redis->auth(static::$config['auth']);
         } catch (\Exception $e) {
 
         }

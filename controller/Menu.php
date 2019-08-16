@@ -3,7 +3,7 @@
 namespace geek1992\tp5_rbac\controller;
 
 use geek1992\tp5_rbac\service\MenuApiService;
-use think\Request;
+use think\facade\Request;
 
 /**
  *  菜单.
@@ -37,15 +37,15 @@ class Menu extends Base
     /**
      *  添加.
      *
-     * @param Request $request
+     * @param Request $this->request
      *
      * @return mixed|void
      */
-    public function menu_add(Request $request)
+    public function menu_add()
     {
-        if ($request->isPost()) {
-            $params = $request->post();
-            $parent_id = $request->post('parent_id', '-2', 'int');
+        if ($this->request->isPost()) {
+            $params = $this->request->post();
+            $parent_id = $this->request->post('parent_id', '-2', 'int');
             if (-2 === (int) $parent_id) {
                 return $this->error('请选择父级菜单');
             } elseif (-1 === (int) $parent_id) {
@@ -64,7 +64,7 @@ class Menu extends Base
 
             return $this->error('添加失败');
         }
-        $id = $request->get('id', -1, 'int');
+        $id = $this->request->get('id', -1, 'int');
         if (-1 === $id) {
             $pList = [['id' => -1, 'name' => '添加主菜单']];
         } else {
@@ -78,10 +78,10 @@ class Menu extends Base
         return $this->myFetch('menu/menu_add');
     }
 
-    public function menu_edit(Request $request)
+    public function menu_edit()
     {
-        if ($request->isPost()) {
-            $params = $request->post();
+        if ($this->request->isPost()) {
+            $params = $this->request->post();
             $result = $this->validate($params, static::VALIDATE);
             if (true !== $result) {
                 // 验证失败 输出错误信息
@@ -96,7 +96,7 @@ class Menu extends Base
 
             return $this->serverError();
         }
-        $id = $request->get('id', -1, 'int');
+        $id = $this->request->get('id', -1, 'int');
         if (-1 === $id) {
             return $this->badRequest('错误的ID');
         }
@@ -122,11 +122,11 @@ class Menu extends Base
     /**
      *  删除.
      *
-     * @param Request $request
+     * @param Request $this->request
      */
-    public function menu_del(Request $request)
+    public function menu_del()
     {
-        $id = $request->post('id', -1, 'int');
+        $id = $this->request->post('id', -1, 'int');
         if (-1 === $id) {
             return $this->errorMsg('删除失败！错误的ID', 400);
         }

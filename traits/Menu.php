@@ -6,8 +6,7 @@
 namespace geek1992\tp5_rbac\traits;
 
 use geek1992\tp5_rbac\model\RoleMenu;
-use think\Request;
-use function tp5auth\auth\controller\menu;
+use think\facade\Request;
 
 trait Menu
 {
@@ -16,7 +15,7 @@ trait Menu
     /**
      * 系统管理员菜单.
      *
-     * @param $isSystemMenu 是否是系统菜单 1是 0否
+     * @param int $isSystemMenu 是否是系统菜单1是 0否
      *
      * @return string 生成好的html代码
      */

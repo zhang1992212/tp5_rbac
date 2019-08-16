@@ -2,7 +2,7 @@
 
 namespace geek1992\tp5_rbac\library;
 
-use think\Request;
+use think\facade\Request;
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
@@ -23,6 +23,6 @@ class LoginLog
 
         $model = new \geek1992\tp5_rbac\model\LoginLog();
 
-        $model->insertData($attribute);
+        $model->insertDataGetId($attribute);
     }
 }
