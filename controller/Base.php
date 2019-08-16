@@ -7,11 +7,10 @@ use geek1992\tp5_rbac\library\Redis;
 use geek1992\tp5_rbac\model\Administrator;
 use geek1992\tp5_rbac\model\AdministratorRole;
 use geek1992\tp5_rbac\model\RoleMenu;
-use think\Config;
 use think\Controller;
 use think\exception\HttpResponseException;
-use think\Request;
-use think\Response;
+use think\facade\Request;
+use think\facade\Response;
 use think\Url;
 
 \defined('DS') or \define('DS', \DIRECTORY_SEPARATOR);
@@ -39,17 +38,16 @@ class Base extends Controller
         $this->view->engine->layout(VIEW_PATH.'layout.html');
     }
 
-    public function _initialize()
+    protected function initialize()
     {
-        $request = Request::instance();
-        if (null === session('userInfo') && !\in_array($request->action(), static::NO_AUTH_LOGIN_ACTION, true)) {
+        if (null === session('userInfo') && !\in_array($this->request->action(), static::NO_AUTH_LOGIN_ACTION, true)) {
             return $this->redirect(url('login', ['method' => 'login']));
         }
-        $isSystemMenu = $request->isSystemMenu ?? '0';
+        $isSystemMenu = $this->request->isSystemMenu ?? '0';
         //已登录 则获取菜单 权限信息
-        if (!(null === ($admin_info = session('userInfo')) && 'login' === (string) $request->action())) {
+        if (!(null === ($admin_info = session('userInfo')) && 'login' === (string) $this->request->action())) {
             // 获取所有菜单信息
-            Request::instance()->admin = $admin_info;
+            $this->request->admin = $admin_info;
             //超级管理员 、系统管理员 拥有全部菜单权限
             if (1 === $admin_info['is_supper'] || \in_array(2, $admin_info['role_id'], true)) {
                 $menu_list = $this->getSupperMenu($isSystemMenu);
@@ -65,7 +63,7 @@ class Base extends Controller
                     'msg' => '您无权限访问该页面，请联系管理员给您配置该权限',
                     'errors' => 'errors',
                 ];
-                if ($request->isAjax()) {
+                if ($this->request->isAjax()) {
                     $redirect['msg'] = '您无权限访问该接口，请联系管理员给您配置该权限';
                 }
 
@@ -76,9 +74,9 @@ class Base extends Controller
         $this->getUniqueId($isSystemMenu);
     }
 
-    public function myFetch($name = '', $vars = [], $replace = [], $config = [])
+    public function myFetch($name = '', $vars = [], $replace = ['__ADMIN_STATIC__' => STATIC_PATH], $config = [])
     {
-        return parent::fetch(VIEW_PATH.$name.'.'.Config::get('url_html_suffix'), $vars = [], $replace = ['__ADMIN_STATIC__' => STATIC_PATH], $config = []);
+        return parent::fetch(VIEW_PATH.$name.'.'. config('url_html_suffix'), $vars, $config);
     }
 
     /**
@@ -143,7 +141,7 @@ class Base extends Controller
     protected function unsetRedirectSession()
     {
         //防止重定向 将传递信息删除
-        if ('errors' === Request::instance()->action() && null !== session('errors')) {
+        if ('errors' === $this->request->action() && null !== session('errors')) {
             $flash = session('__flash__');
             $flag = ['code', 'msg', 'errors'];
             if (!empty($flash)) {
@@ -210,17 +208,17 @@ class Base extends Controller
      */
     protected function permission(?array $permission = null)
     {
-        $isSystemMenu = Request::instance()->isSystemMenu ?? 0;
+        $isSystemMenu = $this->request->isSystemMenu ?? 0;
         $condition = [
-            'module' => Request::instance()->module(),
-            'controller' => Request::instance()->controller(),
-            'action' => Request::instance()->action(),
+            'module' => $this->request->module(),
+            'controller' => $this->request->controller(),
+            'action' => $this->request->action(),
             'type' => 1,
         ];
         if (1 === (int) $isSystemMenu) {
             $condition['module'] = 'index';
-            $condition['controller'] = Request::instance()->action();
-            $condition['action'] = Request::instance()->param('method');
+            $condition['controller'] = $this->request->action();
+            $condition['action'] = $this->request->param('method');
             $condition['type'] = 0;
         }
         $list = $this->menuBaseModel->getByConditionFromCache($condition, null, ['id']);
@@ -249,20 +247,20 @@ class Base extends Controller
      */
     protected function getUniqueId(int $isSystemMenu = 0)
     {
-        $request = Request::instance();
+        $this->request = $this->request;
         if (0 === $isSystemMenu) {
-            $uniqueId = $request->module().'/'.$request->controller().'/'.$request->action();
+            $uniqueId = $this->request->module().'/'.$this->request->controller().'/'.$this->request->action();
         } else {
-            $uniqueId = $request->module().'/'.$request->action().'/'.$request->param('method');
+            $uniqueId = $this->request->module().'/'.$this->request->action().'/'.$this->request->param('method');
         }
-        Request::instance()->uniqueId = $uniqueId;
+        $this->request->uniqueId = $uniqueId;
         $this->uniqueId = $uniqueId;
     }
 
     protected function errorMsg($msg = '', $code = 200, $data = '', $url = null, $wait = 3, array $header = [])
     {
         if (null === $url) {
-            $url = Request::instance()->isAjax() ? '' : 'javascript:history.back(-1);';
+            $url = $this->request->isAjax() ? '' : 'javascript:history.back(-1);';
         } elseif ('' !== $url && !strpos($url, '://') && 0 !== strpos($url, '/')) {
             $url = Url::build($url);
         }

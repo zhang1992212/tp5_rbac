@@ -5,7 +5,7 @@ namespace geek1992\tp5_rbac\model;
 use geek1992\tp5_rbac\interfaces\BaseModeInterfaces;
 use geek1992\tp5_rbac\library\AdministratorLog;
 use think\Exception;
-use think\Log;
+use \think\facade\Log;
 use think\Model;
 
 /**
@@ -14,9 +14,8 @@ use think\Model;
 abstract class BaseModel extends Model implements BaseModeInterfaces
 {
     protected const NO_WRITE_OPERATE_LOG_MODEL = ['admin_administrator_log', 'admin_login_log'];
-    protected $connection = 'database';
 
-    public function insertData($data)
+    public function insertDataGetId($data)
     {
         $res = $this->insertGetId($data);
         $noWriteLogModel = static::NO_WRITE_OPERATE_LOG_MODEL;
@@ -34,7 +33,7 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
         return $res;
     }
 
-    public function updateData($where, $data)
+    public function updateDataGetInfo($where, $data)
     {
         $data['update_time'] = date('Y-m-d H:i:s');
         $res = $this->where($where)->update($data);
@@ -52,7 +51,7 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
     {
         try {
             $query = $this->deleted()->where($condition)->order($order)->field($fields)->limit($start, $limit);
-            $list['data'] = collection($query->select())->toArray();
+            $list['data'] = $query->select()->toArray();
             $list['total'] = $this->deleted()->where($condition)->count();
         } catch (Exception $e) {
             Log::error($e->getTraceAsString());
@@ -66,7 +65,7 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
     {
         try {
             $query = $this->deleted()->where($condition)->order($order)->field($fields);
-            $list['data'] = collection($query->select())->toArray();
+            $list['data'] = $query->select()->toArray();
             $list['total'] = $this->deleted()->where($condition)->count();
         } catch (Exception $e) {
             Log::error($e->getTraceAsString());
@@ -89,7 +88,7 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
     public function updateDataById(int $id, array $data)
     {
         $data['update_time'] = date('Y-m-d H:i:s');
-        $res = $this->updateData(['id' => $id], $data);
+        $res = $this->updateDataGetInfo(['id' => $id], $data);
 
         return $res;
     }
@@ -106,12 +105,4 @@ abstract class BaseModel extends Model implements BaseModeInterfaces
         return $this;
     }
 
-    private function objectToArray($items)
-    {
-        $res = array_map(function ($item) {
-            return $item->data;
-        }, $items);
-
-        return $res;
-    }
 }

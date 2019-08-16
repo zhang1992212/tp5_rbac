@@ -5,7 +5,7 @@ namespace geek1992\tp5_rbac\controller;
 use geek1992\tp5_rbac\library\Redis;
 use geek1992\tp5_rbac\model\RoleMenu;
 use geek1992\tp5_rbac\service\LoginApiService;
-use think\Request;
+use think\facade\Request;
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
@@ -23,21 +23,22 @@ class Login extends Base
     /**
      * 登录.
      *
-     * @param Request $request
+     * @param Request $this->request
      *
      * @return mixed|void
      */
-    public function login(Request $request)
+    public function login()
     {
+     
         if (session('userInfo')) {
-            if ($request->isAjax()) {
+            if ($this->request->isAjax()) {
                 return $this->success('登录成功', url('index/welcome', ['method' => 'index']));
             }
             return $this->redirect(url('index/welcome', ['method' => 'index']));
         }
-        if ($request->isPost()) {
+        if ($this->request->isPost()) {
             //登录
-            $info = $this->LoginApiService->checkLogin($request->param('account'), $request->param('password'));
+            $info = $this->LoginApiService->checkLogin($this->request->param('account'), $this->request->param('password'));
             Request::instance()->admin = $info;
             if (empty($info)) {
                 $msg = '登录失败，用户名或密码错误';

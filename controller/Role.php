@@ -3,7 +3,7 @@
 namespace geek1992\tp5_rbac\controller;
 
 use geek1992\tp5_rbac\service\RoleApiService;
-use think\Request;
+use think\facade\Request;
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
@@ -24,13 +24,13 @@ class Role extends Base
         return $this->myFetch('role/index');
     }
 
-    public function getRoleList(Request $request)
+    public function getRoleList()
     {
-        $start = $request->post('start');
-        $length = $request->post('length', '10', 'int');
+        $start = $this->request->post('start');
+        $length = $this->request->post('length', '10', 'int');
         $list = $this->roleService->getList([], null, $start, $length);
         $data = [
-            'draw' => $request->post('draw'),
+            'draw' => $this->request->post('draw'),
             'recordsTotal' => $list['total'],
             'recordsFiltered' => $list['total'],
             'data' => $list['data'],
@@ -42,14 +42,14 @@ class Role extends Base
     /**
      * 添加.
      *
-     * @param Request $request
+     * @param Request $this->request
      *
      * @return mixed|void
      */
-    public function role_add(Request $request)
+    public function role_add()
     {
-        if ($request->isPost()) {
-            $params = $request->post();
+        if ($this->request->isPost()) {
+            $params = $this->request->post();
             $result = $this->validate($params, static::VALIDATE);
             if (true !== $result) {
                 // 验证失败 输出错误信息
@@ -74,14 +74,14 @@ class Role extends Base
     /**
      * 编辑.
      *
-     * @param Request $request
+     * @param Request $this->request
      *
      * @return mixed|void
      */
-    public function role_edit(Request $request)
+    public function role_edit()
     {
-        if ($request->isPost()) {
-            $params = $request->post();
+        if ($this->request->isPost()) {
+            $params = $this->request->post();
             $result = $this->validate($params, static::VALIDATE);
             if (true !== $result) {
                 // 验证失败 输出错误信息
@@ -96,7 +96,7 @@ class Role extends Base
 
             return $this->serverError();
         }
-        $id = $request->get('id', -1, 'int');
+        $id = $this->request->get('id', -1, 'int');
         if (-1 === $id) {
             return $this->badRequest('错误的ID');
         }
@@ -113,11 +113,11 @@ class Role extends Base
     /**
      *  删除.
      *
-     * @param Request $request
+     * @param Request $this->request
      */
-    public function role_del(Request $request)
+    public function role_del()
     {
-        $id = $request->post('id', -1, 'int');
+        $id = $this->request->post('id', -1, 'int');
         if (-1 === $id) {
             return $this->errorMsg('删除失败！错误的ID', 400);
         }
@@ -132,13 +132,13 @@ class Role extends Base
     /**
      * 角色详情.
      *
-     * @param Request $request
+     * @param Request $this->request
      *
      * @return mixed|void
      */
-    public function role_view(Request $request)
+    public function role_view()
     {
-        $id = $request->get('id', -1, 'int');
+        $id = $this->request->get('id', -1, 'int');
         if (-1 === $id) {
             return $this->badRequest('错误的ID');
         }

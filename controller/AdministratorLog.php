@@ -2,7 +2,6 @@
 
 namespace geek1992\tp5_rbac\controller;
 
-use think\Request;
 
 /**
  * @author: Geek <zhangjinlei01@bilibili.com>
@@ -24,10 +23,10 @@ class AdministratorLog extends Base
         return $this->myFetch('administratorLog/index');
     }
 
-    public function getAdministratorLogList(Request $request)
+    public function getAdministratorLogList()
     {
-        $start = $request->post('start');
-        $length = $request->post('length', '10', 'int');
+        $start = $this->request->post('start');
+        $length = $this->request->post('length', '10', 'int');
         $list = $this->administratorLogModel->search([], null, $start, $length);
         if (!empty($list['data'])) {
             foreach ($list['data'] as $key => $item) {
@@ -37,7 +36,7 @@ class AdministratorLog extends Base
             }
         }
         $data = [
-            'draw' => $request->post('draw'),
+            'draw' => $this->request->post('draw'),
             'recordsTotal' => $list['total'],
             'recordsFiltered' => $list['total'],
             'data' => $list['data'],
