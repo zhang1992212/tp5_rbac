@@ -18,7 +18,7 @@ class RoleMenuApiService
 
     public function insertData($data)
     {
-        return $this->roleMenuModel->insertData($data);
+        return $this->roleMenuModel->insertDataGetId($data);
     }
 
     public function insertAllData($data)
@@ -41,7 +41,7 @@ class RoleMenuApiService
             $where['id'] = ['in', $id];
         }
         $data['deleted'] = 1;
-        $res = $this->roleMenuModel->updateData($where, $data);
+        $res = $this->roleMenuModel->updateDataGetInfo($where, $data);
 
         return $res;
     }
@@ -49,7 +49,7 @@ class RoleMenuApiService
     public function delWhereData($where)
     {
         $data['deleted'] = 1;
-        $res = $this->roleMenuModel->updateData($where, $data);
+        $res = $this->roleMenuModel->updateDataGetInfo($where, $data);
 
         return $res;
     }
@@ -57,7 +57,7 @@ class RoleMenuApiService
     public function updateData($id, $data)
     {
         $where['id'] = $id;
-        $res = $this->roleMenuModel->updateData($where, $data);
+        $res = $this->roleMenuModel->updateDataGetInfo($where, $data);
 
         return $res;
     }

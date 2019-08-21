@@ -24,8 +24,9 @@ trait Menu
         $menuModel = new \geek1992\tp5_rbac\model\Menu();
         $menu_list = $menuModel->searchAll([], ['order' => 'desc'], $this->menu_fields);
         $menu_tree = $this->menuTreeList($menu_list['data'], 0, $isSystemMenu);
-        unset($menu_tree['selected'], $menuModel);
 
+        unset($menu_tree['selected'], $menuModel);
+//        halt($menu_tree);
         $menu_tree_html = $this->buildMenuTree($menu_tree, $isSystemMenu);
 
         return $menu_tree_html;
@@ -117,7 +118,6 @@ trait Menu
             $html .= '</dd>';
             $html .= '</dl>';
         }
-
         return $html;
     }
 

@@ -9,7 +9,6 @@ use geek1992\tp5_rbac\model\AdministratorRole;
 use geek1992\tp5_rbac\model\RoleMenu;
 use think\Controller;
 use think\exception\HttpResponseException;
-use think\facade\Request;
 use think\facade\Response;
 use think\Url;
 

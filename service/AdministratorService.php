@@ -51,7 +51,7 @@ class AdministratorService
     {
         $data['password'] = StringHelper::getPassword($data['password']);
 
-        return $this->administratorModel->insertData($data);
+        return $this->administratorModel->insertDataGetId($data);
     }
 
     /**

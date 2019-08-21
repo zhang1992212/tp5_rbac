@@ -24,7 +24,7 @@ class MenuApiService
         }
         $data['type'] = 1;
 
-        return $this->menuModel->insertData($data);
+        return $this->menuModel->insertDataGetId($data);
     }
 
     public function getParentInfo($id)
@@ -61,7 +61,7 @@ class MenuApiService
     {
         $where['id'] = $id;
         $data['deleted'] = 1;
-        $res = $this->menuModel->updateData($where, $data);
+        $res = $this->menuModel->updateDataGetInfo($where, $data);
 
         return $res;
     }
@@ -69,7 +69,7 @@ class MenuApiService
     public function updateData($id, $data)
     {
         $where['id'] = $id;
-        $res = $this->menuModel->updateData($where, $data);
+        $res = $this->menuModel->updateDataGetInfo($where, $data);
 
         return $res;
     }

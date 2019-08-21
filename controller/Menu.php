@@ -37,7 +37,6 @@ class Menu extends Base
     /**
      *  添加.
      *
-     * @param Request $this->request
      *
      * @return mixed|void
      */

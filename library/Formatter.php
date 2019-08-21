@@ -3,6 +3,7 @@
 namespace geek1992\tp5_rbac\library;
 
 use geek1992\tp5_rbac\interfaces\FormatterInterfaces;
+use think\facade\Request;
 use think\Response;
 use think\response\Json;
 
@@ -40,7 +41,7 @@ class Formatter implements FormatterInterfaces
     public function format(): Json
     {
         if (!empty($this->errors)) {
-            return Response::create($this->errors, 'json', $this->errors['code']);
+            return Request::create($this->errors, 'json', $this->errors['code']);
         }
         $result['data'] = $this->data;
         return json($result);

@@ -25,7 +25,7 @@ class RoleApiService
     {
         $menu = $data['menu'];
         unset($data['menu']);
-        $id = $this->roleModel->insertData($data);
+        $id = $this->roleModel->insertDataGetId($data);
         $insertData = array_map(function ($item) use ($id) {
             return ['role_id' => $id, 'menu_id' => $item];
         }, $menu);
@@ -51,7 +51,7 @@ class RoleApiService
     {
         $where['id'] = $id;
         $data['deleted'] = 1;
-        $res = $this->roleModel->updateData($where, $data);
+        $res = $this->roleModel->updateDataGetInfo($where, $data);
 
         return $res;
     }
@@ -69,7 +69,7 @@ class RoleApiService
         $where['id'] = $id;
         $menu = $data['menu'] ?? [];
         unset($data['menu']);
-        $res = $this->roleModel->updateData($where, $data);
+        $res = $this->roleModel->updateDataGetInfo($where, $data);
         $old_role = $this->roleMenuApi->getListById($id);
         $old_menu = array_column($old_role, 'menu_id');
         $del_menu = array_diff($old_menu, $menu);

@@ -39,7 +39,7 @@ class AdministratorRoleService
         if (!empty($insertRoleId)) {
             foreach ($roleId as $item) {
                 $data = ['admin_id' => $administratorId, 'role_id' => $item];
-                $res = $this->administratorRoleModel->insertData($data);
+                $res = $this->administratorRoleModel->insertDataGetId($data);
                 if (false === $res || 0 === (int) $res) {
                     $this->administratorRoleModel->rollback();
 
